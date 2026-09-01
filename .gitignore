@@ -60,6 +60,7 @@ docs_html/
 # Tooling artifacts
 .zero/
 .serena/
+.codegraph/
 
 # Agent plan artifacts
 .superpowers/
