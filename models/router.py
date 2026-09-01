@@ -27,56 +27,62 @@ def retrieval_scores(
 
 
 def select_chunks(
-    scores: Tensor,    # (B, H, N, N), scores[b, h, i, j]
+    scores: Tensor,    # (B, H, Nq, Nk), scores[b, h, r, j]; Nk >= Nq
     n_selected: int,   # k: own chunk + top-(k-1)
     own_chunk: bool = True,
 ) -> tuple[Tensor, Tensor]:
-    """Causal head-shared top-k. Returns (selected (B, N, k) int64, fused
-    per-head scores (B, H, N, k)). Own chunk sits at slot 0. Rows with fewer
+    """Causal head-shared top-k. Returns (selected (B, Nq, k) int64, fused
+    per-head scores (B, H, Nq, k)). Own chunk sits at slot 0. Rows with fewer
     admissible chunks pad by repeating the last valid index (the own chunk)
-    with -inf fused scores — zero fusion weight, still causal."""
-    B, H, N, Nk = scores.shape
-    if Nk != N:
-        raise ValueError(f"score matrix must be square, got ({N}, {Nk})")
+    with -inf fused scores — zero fusion weight, still causal.
+
+    Query rows are right-aligned: slice-row r is absolute query chunk
+    Nk-Nq+r, admissible candidates are j <= that index. Training passes a
+    square matrix (Nq == Nk); decode passes one query (Nq=1) against the
+    N = i+1 landmarks cached so far — all admissible by construction."""
+    B, H, Nq, Nk = scores.shape
+    if Nk < Nq:
+        raise ValueError(f"need at least one candidate column per query row, got ({Nq}, {Nk})")
     k = n_selected
-    if not 1 <= k <= N:
-        raise ValueError(f"n_selected must be in [1, {N}], got {k}")
+    if not 1 <= k <= Nk:
+        raise ValueError(f"n_selected must be in [1, {Nk}], got {k}")
     dev = scores.device
-    pos = torch.arange(N, device=dev)
+    pos_c = torch.arange(Nk, device=dev)              # candidate chunk indices
+    pos_q = torch.arange(Nk - Nq, Nk, device=dev)     # absolute query indices
 
     # selection is shared across query heads: score chunks by mean_h s_ij
-    mean_scores = scores.mean(dim=1)  # (B, N, N)
-    causal = pos[None, :] <= pos[:, None]  # admissible: j <= i
+    mean_scores = scores.mean(dim=1)  # (B, Nq, Nk)
+    causal = pos_c[None, :] <= pos_q[:, None]  # admissible: j <= i
     if own_chunk:
-        selectable = causal & (pos[:, None] != pos[None, :])
-        fill, n_fill = k - 1, torch.clamp_max(pos, k - 1)  # valid others per row
+        selectable = causal & (pos_c[None, :] != pos_q[:, None])
+        fill, n_fill = k - 1, torch.clamp_max(pos_q, k - 1)  # valid others per row
     else:
         selectable = causal
-        fill, n_fill = k, torch.clamp_max(pos + 1, k)
+        fill, n_fill = k, torch.clamp_max(pos_q + 1, k)
 
     masked = mean_scores.masked_fill(~selectable, float("-inf"))
     # descending score with ties toward higher j: flip the j axis, stable
     # ascending sort of the negated scores, map positions back
     order = torch.argsort(masked.flip(-1).neg(), dim=-1, stable=True)
-    ranked = (N - 1) - order  # (B, N, N) chunk indices, best first
+    ranked = (Nk - 1) - order  # (B, Nq, Nk) chunk indices, best first
     slots = torch.arange(fill, device=dev)
     others = torch.where(
         slots[None, None, :] < n_fill[:, None],
         ranked[..., :fill],
-        pos.view(1, N, 1).expand(B, N, fill),  # pad with own index
+        pos_q.view(1, Nq, 1).expand(B, Nq, fill),  # pad with own index
     )
 
     if own_chunk:
-        selected = torch.cat([pos.view(1, N, 1).expand(B, N, 1), others], dim=-1)
+        selected = torch.cat([pos_q.view(1, Nq, 1).expand(B, Nq, 1), others], dim=-1)
         pad = torch.cat(
-            [torch.zeros(N, 1, dtype=torch.bool, device=dev), slots >= n_fill[:, None]],
+            [torch.zeros(Nq, 1, dtype=torch.bool, device=dev), slots >= n_fill[:, None]],
             dim=-1,
         )
     else:
         selected = others
         pad = slots >= n_fill[:, None]
 
-    sel = selected[:, None, :, :].expand(B, H, N, selected.shape[-1])
+    sel = selected[:, None, :, :].expand(B, H, Nq, selected.shape[-1])
     fused = scores.gather(3, sel).masked_fill(pad[None, None], float("-inf"))
     return selected, fused
 
