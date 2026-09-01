@@ -1,0 +1,75 @@
+# HiLS-Attention-Lite ~341M param Chinchilla-class pre-training.
+# Designed for 1x A100 80GB SXM. ~1.77e19 train FLOPs → ~40–48 h at 35-40% MFU.
+#
+# Architecture: d_model=1024, 24 dense layers, HiLS learned sparse chunk
+#               attention (GQA 16Q/4KV, head_dim=64), chunk_len=128,
+#               n_selected=8 (own chunk + top-7 landmark-scored), RoPE θ=500K.
+#
+# Two-phase data plan:
+#   Phase A: 7.0B tokens @ seq 4096   (N=32 chunks, 8/32 = 25% selected)
+#   Phase B: 1.0B tokens @ seq 16384  (N=128 chunks, 8/128 = 6.25% selected)
+#
+# Stability features:
+#   - 2000-step linear warmup + one cosine schedule across both phases
+#     (500-step re-warm at the Phase A→B sequence-length switch)
+#   - gradient clipping at 1.0
+#   - NaN guard with checkpoint rollback
+#   - weight tying (embed <-> head)
+#   - router aux load-balance loss (λ=0.01) + selection-entropy watchdog
+#   - eager reference attention path for equivalence tests
+
+model:
+  vocab_size:              50257         # GPT-2 BPE (shared_data default, house parity)
+  d_model:                 1024
+  n_layers:                24
+  n_heads:                 16            # query heads
+  n_kv_heads:              4             # GQA key-value groups
+  head_dim:                64            # d_model / n_heads
+  ffn_dim:                 3072          # SwiGLU intermediate (3× d_model)
+  weight_tying:            true
+  rms_norm_eps:            1.0e-5
+  init_std:                0.02
+  rope_theta:              500000
+  max_seq_len:             16384         # Phase B ceiling; Phase A trains at seq 4096
+  attn_impl:               "sdpa"        # sparse gather path (eager = reference)
+  # --- the HiLS core (the distinctive component) ---
+  chunk_len:               128
+  n_selected:              8             # k: own chunk + top-(k-1) by landmark score
+  landmark_init:           "identity"    # W_ℓ = I  →  ℓ = meanpooled K
+  fusion:                  "score_softmax"  # fuse per-chunk outputs by retrieval scores
+  selection_scope:         "per_query_chunk"
+  aux_balance_weight:      0.01          # λ for the Herfindahl load-balance term
+  straight_through_selection: false      # documented ablation hook (off in v1)
+
+training:
+  micro_batch_size:              8
+  gradient_accumulation_steps:   4
+  total_steps:                   61037   # 53,407 (Phase A) + 7,630 (Phase B)
+  warmup_steps:                  2000
+  phase_switch_step:             53407   # 7.0B tokens; seq 4096 -> 16384
+  phase_b_warmup_steps:          500
+  lr:                            3.0e-4
+  min_lr_ratio:                  0.05
+  weight_decay:                  0.1
+  beta1:                         0.9
+  beta2:                         0.95
+  grad_clip:                     1.0
+  grad_checkpoint:               true
+  grad_checkpoint_every:         3
+  compile:                       true
+  compile_mode:                  "max-autotune"
+  save_interval:                 4000
+  log_interval:                  50
+  nan_guard:                     true
+  nan_guard_max_consecutive:     5
+  selection_watchdog:            true    # max-share > 50% for 500 steps -> warn+rollback
+  save_dir:                      "checkpoints/pretrain_a100"
+
+data:
+  train_data_path:      "data/pretrain_chinchilla"
+  tokenizer:            "gpt2"                   # 50,257 vocab (house parity)
+  shard_size_tokens:    50000000
+  max_tokens:           8000000000               # 7.0B phase A + 1.0B phase B
+  long_context_tokens:  1000000000               # consumed at seq 16384
+  data_mix:             "hils-default"
+  # same shared_data mixture as other Lites; cross_document_boundary_ok: false
