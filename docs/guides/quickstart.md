@@ -73,7 +73,10 @@ steps @ seq 16384 (1.0B tokens) with a 500-step LR re-warm at the switch —
 ~40–48 h at 35–40% MFU. The loop auto-resumes from the latest complete
 checkpoint in `checkpoints/pretrain_a100`
 (`utils/checkpoint.py:CheckpointManager` — three files per step, or the step
-is not resumable). Before the long run, run the pod-side boundary checks:
+is not resumable). The operational order — what ships to the pod, the
+boundary checks in sequence, resume semantics, and what to watch in the log —
+is the [A100 pod runbook](a100-runbook.md). Before the long run, run the
+pod-side boundary checks:
 
 ```bash
 python scripts/microbench_a100.py --phase A   # gate: < 15 GB

@@ -36,10 +36,12 @@ DOC_FILES = [
 
     # Guides
     ("docs/guides/quickstart.md", "Guides", "Quickstart — data, train, sample, evaluate"),
+    ("docs/guides/a100-runbook.md", "Guides", "A100 Pod Runbook — boundary checks, pretrain, headline evals"),
     ("docs/guides/debugging-playbook.md", "Guides", "Debugging Playbook — symptom-first recipes"),
 
     # References
     ("docs/references/config.md", "References", "Config Reference — the production YAML"),
+    ("docs/references/eval-scripts.md", "References", "Eval-Scripts Reference — gates, flags, PASS/DISCLOSED"),
     ("docs/references/api.md", "References", "API Reference — public surface, symbol-anchored"),
 ]
 

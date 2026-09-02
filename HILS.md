@@ -326,9 +326,13 @@ The honesty contract is mechanical: every script prints its measured number
 with an explicit `[PASS …]` / `[DISCLOSED …]` marker; a missing checkpoint,
 baseline, tokenizer, or shard is disclosed with the reason, never silently
 dropped; a measured miss is disclosed next to its gate; the scripts exit 0
-either way. Until the A100 pod runs them, the four numbers are **targets,
-not results** — the README says exactly that, and this document claims no
-measured value the scripts have not printed.
+either way. Flag-by-flag reference for every script:
+[docs/references/eval-scripts.md](docs/references/eval-scripts.md); the
+operational order for the pod work:
+[docs/guides/a100-runbook.md](docs/guides/a100-runbook.md). Until the A100
+pod runs them, the four numbers are **targets, not results** — the README
+says exactly that, and this document claims no measured value the scripts
+have not printed.
 
 The in-repo diagnostic worth watching even before the baseline exists: the
 all-chunk ratio in the `scripts/longctx_eval.py` output — what learned top-k
@@ -391,7 +395,7 @@ pinned by a test in `tests/test_router.py`:
 | balance form | **Herfindahl** N·Σ p_j² on the *soft* fusion mass | entropy bonus, hard-count MoE-style load loss |
 | own chunk | **always selected** at slot 0, competes in the fusion softmax like any other | pure top-k (local continuity at the router's mercy) |
 | tie-breaking | **higher chunk index wins** (flip + stable argsort, no epsilon) | ε-jitter or first-index-wins |
-| gradient path | **through fusion weights only**; STE hook exists, off in v1 (`straight_through_selection: false`) | straight-through selection, Gumbel tricks |
+| gradient path | **through fusion weights only**; `straight_through_selection: false` is validated fail-fast — no STE hook implemented in v1 | straight-through selection, Gumbel tricks |
 
 ### 10.5 What is deliberately NOT carried over
 
