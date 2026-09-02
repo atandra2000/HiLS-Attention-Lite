@@ -27,7 +27,7 @@ trained) sparse-attention model.
 | B3 | NIAH retrieval @ 64K (4× extrapolation, no stretching) | ≥ 85% | *DISCLOSED — pending pod run* |
 | B4 | held-out ΔNLL @ 4096 vs LLaMA-3-Lite | ≤ +5% | *DISCLOSED — pending pod run* |
 
-What is verified today, on CPU (66 tests, `python3 -m pytest -m "not gpu and
+What is verified today, on CPU (68 tests, `python3 -m pytest -m "not gpu and
 not slow"`): sparse ≡ eager attention (fp64, atol 1e-5, incl. k=N),
 decode ≡ teacher-forced (fp64), causal top-k exact semantics, router
 gradient flow (native trainability), chunked-CE ≡ eager CE, checkpoint

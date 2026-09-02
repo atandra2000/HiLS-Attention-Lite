@@ -267,7 +267,7 @@ normalization, balance-loss collapse penalty, chunked-CE ≡ eager CE,
 checkpoint round-trip + resume bit-equality, phase-switch config, NaN-guard
 rollback, KV-access counter exactness, and the Phase-5 evaluator protocol
 tests. The full matrix is `python3 -m pytest -m "not gpu and not slow"` —
-66 tests, CPU, minutes. House rule: any change to `models/router.py` or
+68 tests, CPU, minutes. House rule: any change to `models/router.py` or
 `models/landmarks.py` reruns the router tests *first*; any change to
 attention reruns sparse ≡ eager *first*.
 
