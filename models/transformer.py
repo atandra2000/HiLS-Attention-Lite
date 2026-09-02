@@ -57,6 +57,7 @@ class HiLSAttentionLM(nn.Module):
         assert cfg.head_dim * cfg.n_heads == cfg.d_model, "d_model must factor as heads × head_dim"
         self.cfg = cfg
         self.grad_ckpt_every = None  # runtime knob: training loop sets from config training:
+        self._fast_blocks = None     # runtime knob: compiled block handles (training loop)
         self.embed = nn.Embedding(cfg.vocab_size, cfg.d_model)
         self.blocks = nn.ModuleList([
             HiLSBlock(cfg.d_model, cfg.n_heads, cfg.n_kv_heads, cfg.head_dim,
@@ -95,7 +96,8 @@ class HiLSAttentionLM(nn.Module):
         freqs_cis = self._freqs_cis(tokens.size(1), tokens.device)
         h = self.embed(tokens)
         auxes = []
-        for i, block in enumerate(self.blocks):
+        blocks = self._fast_blocks if self._fast_blocks is not None else self.blocks
+        for i, block in enumerate(blocks):
             if self.grad_ckpt_every and i % self.grad_ckpt_every == 0 \
                     and self.training and torch.is_grad_enabled():
                 h, aux = torch.utils.checkpoint.checkpoint(

@@ -47,6 +47,7 @@ training:
   total_steps:                   61037   # 53,407 (Phase A) + 7,630 (Phase B)
   warmup_steps:                  2000
   phase_switch_step:             53407   # 7.0B tokens; seq 4096 -> 16384
+  phase_a_seq_len:               4096    # Phase A window (Phase B = model.max_seq_len)
   phase_b_warmup_steps:          500
   lr:                            3.0e-4
   min_lr_ratio:                  0.05

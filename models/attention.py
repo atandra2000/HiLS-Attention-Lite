@@ -156,6 +156,7 @@ class HiLSAttention(nn.Module):
         scores = retrieval_scores(pooled_query(q, C), self.landmarks(k, C),
                                   self.kv_group_map, D)
         selected, fused = select_chunks(scores, n_sel)
+        self.last_selected = selected.detach()  # watchdog surface (training loop)
         g = fusion_weights(fused)
         core = hils_attention_core if self.attn_impl == "sdpa" \
             else eager_hils_attention_core

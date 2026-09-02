@@ -9,5 +9,6 @@ trained) sparse-attention model.
 
 > **Status:** scaffolded 2026-09-02 per
 > [`llm-research/EXECUTION-PLAN-hils-attention-lite.md`](../../llm-research/EXECUTION-PLAN-hils-attention-lite.md)
-> (Phase 0 complete). Implementation phases 1–5 pending.
+> (Phases 0–3 complete; Phase 4.1 two-phase training loop landed — Phase 4.2
+> A100 boundary checks and Phase 5 evaluation pending).
 > Design spec: [`llm-research/DESIGN-hils-attention-lite.md`](../../llm-research/DESIGN-hils-attention-lite.md).
