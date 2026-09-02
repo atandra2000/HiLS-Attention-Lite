@@ -175,7 +175,12 @@ def fix_md_links(content: str, src_rel_path: str) -> str:
                 cand_src = src_dir / path_part
                 cand_root = WORKSPACE_DIR / path_part
                 if cand_src.exists():
-                    repo_rel = cand_src.resolve().relative_to(WORKSPACE_DIR)
+                    try:
+                        repo_rel = cand_src.resolve().relative_to(WORKSPACE_DIR)
+                    except ValueError:
+                        # target outside the repo (../../llm-research/…) — keep the
+                        # checkout-relative href; it cannot ship inside docs_html/
+                        return f"[{label}]({url})"
                 elif cand_root.exists():
                     repo_rel = cand_root
                 else:
@@ -189,7 +194,10 @@ def fix_md_links(content: str, src_rel_path: str) -> str:
                 target += "#" + anchor
             return f"[{label}]({target})"
         if repo_base and not path_part.startswith("/"):
-            repo_rel = (src_dir / path_part).resolve().relative_to(WORKSPACE_DIR)
+            try:
+                repo_rel = (src_dir / path_part).resolve().relative_to(WORKSPACE_DIR)
+            except ValueError:
+                return f"[{label}]({url})"  # outside the repo — leave as-is
             return f"[{label}]({repo_base}/{repo_rel})"
         return f"[{label}]({url})"
 

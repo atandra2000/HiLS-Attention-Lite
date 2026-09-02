@@ -2,7 +2,7 @@
 
 > Companion to `AGENTS.md` (architecture + rules). This file holds day-to-day
 > developer workflows. Workflows marked *(Phase N)* arrive with that phase of
-> [`../llm-research/EXECUTION-PLAN-hils-attention-lite.md`](../llm-research/EXECUTION-PLAN-hils-attention-lite.md).
+> [`../../llm-research/EXECUTION-PLAN-hils-attention-lite.md`](../../llm-research/EXECUTION-PLAN-hils-attention-lite.md).
 
 ## Skill 1: Run the CPU-friendly test suite
 
