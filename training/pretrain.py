@@ -239,6 +239,11 @@ def train(cfg_path: str, *, batches=None, max_steps: int | None = None,
         if micro:  # partial accumulation window dropped at epoch end / phase switch
             optimizer.zero_grad(set_to_none=True)
             micro = 0
+    if state.step and state.step % t["save_interval"] != 0:
+        # persist the run's final state — save_interval alone would leave the
+        # headline evals scoring a checkpoint up to save_interval−1 steps stale
+        ckpt.save(model, optimizer, state.step,
+                  extra_meta={"tokens_seen": state.tokens_seen})
     return state
 
 

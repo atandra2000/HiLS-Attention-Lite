@@ -41,6 +41,17 @@ def test_weight_tying_shared():
     assert model.head.weight is model.embed.weight
 
 
+def test_config_knobs_fail_fast():
+    """Knobs with one implementation each die at construction, not silently
+    train the wrong model (load_config builds HiLSConfig eagerly)."""
+    bad = [dict(attn_impl="flash"), dict(landmark_init="random"),
+           dict(fusion="uniform"), dict(selection_scope="per_token"),
+           dict(straight_through_selection=True)]
+    for kw in bad:
+        with pytest.raises(AssertionError):
+            tiny_cfg(**kw)
+
+
 def test_two_step_overfit():
     torch.manual_seed(23)
     model = HiLSAttentionLM(tiny_cfg(n_layers=2))
@@ -84,6 +95,15 @@ def test_compile_block_runs():
         out_c, aux_c = torch.compile(block)(x, freqs)  # selection stays eager
     assert torch.allclose(out_c, out_ref, atol=1e-4)
     assert torch.allclose(aux_c, aux_ref, atol=1e-4)
+    # the watchdog surface survives compilation: dynamo must propagate the
+    # last_selected attribute mutation out of the compiled graph, or the
+    # training loop reads stale (or absent) selection on the production pod
+    ref_sel = block.attn.last_selected.clone()
+    block.attn.last_selected = None
+    with torch.no_grad():
+        torch.compile(block)(x, freqs)
+    assert block.attn.last_selected is not None
+    assert torch.equal(block.attn.last_selected, ref_sel)  # same input, same selection
 
 
 def test_first_chunk_degenerate_case():
