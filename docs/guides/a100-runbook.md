@@ -4,7 +4,7 @@ The operational order for the remaining pod work — data → boundary checks �
 the 40–48 h pretrain → the headline evals. Commands live in the
 [quickstart](quickstart.md) and the [eval-scripts reference](../references/eval-scripts.md);
 this page is about sequence, resume semantics, and what to watch. The CPU
-gate (`python3 -m pytest -m "not gpu and not slow"`, 66 tests) passes before
+gate (`python3 -m pytest -m "not gpu and not slow"`, 68 tests) passes before
 anything is uploaded.
 
 ## 0. What ships to the pod
