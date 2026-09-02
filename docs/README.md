@@ -23,12 +23,16 @@ symbol `Symbol` in `file.py`, and line numbers are never cited (they rot).
 
 - [Quickstart](guides/quickstart.md) — data → train → sample → evaluate,
   every command verified end-to-end
+- [A100 pod runbook](guides/a100-runbook.md) — boundary checks → the 40–48 h
+  pretrain (resume semantics, what to watch) → the headline evals
 - [Debugging playbook](guides/debugging-playbook.md) — symptom-first recipes
   for the known failure modes (router collapse, NaN, phase-switch spikes)
 
 ## References
 
 - [Config reference](references/config.md) — the production YAML, field by field
+- [Eval-scripts reference](references/eval-scripts.md) — every gate script:
+  flags, gates, CPU vs A100 forms, PASS/DISCLOSED semantics
 - [API reference](references/api.md) — the full public surface, symbol-anchored
 
 ## Tooling
