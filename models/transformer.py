@@ -44,6 +44,21 @@ class HiLSConfig:
             raw = yaml.safe_load(f)
         return cls(**raw["model"])
 
+    def __post_init__(self):
+        """Fail fast on knobs with exactly one implementation each (load_config
+        constructs HiLSConfig eagerly, so a bad value dies before the GPU)."""
+        assert self.attn_impl in ("sdpa", "eager"), f"unknown attn_impl: {self.attn_impl!r}"
+        assert self.landmark_init == "identity", (
+            f"unknown landmark_init: {self.landmark_init!r} (only 'identity' exists in v1)")
+        assert self.fusion == "score_softmax", (
+            f"unknown fusion: {self.fusion!r} (only 'score_softmax' exists in v1)")
+        assert self.selection_scope == "per_query_chunk", (
+            f"unknown selection_scope: {self.selection_scope!r} "
+            "(only 'per_query_chunk' exists in v1)")
+        assert self.straight_through_selection is False, (
+            "straight_through_selection is a documented ablation, not implemented "
+            "in v1 — gradients flow through the fusion weights only")
+
 
 class HiLSAttentionLM(nn.Module):
     """Dense backbone, HiLS attention. forward(tokens) → logits; with targets

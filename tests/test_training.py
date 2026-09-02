@@ -113,6 +113,16 @@ def test_two_step_overfit(tmp_path):
     assert state.tokens_seen == 2 * 2 * 128  # steps · micro_bs · seq · accum
 
 
+def test_final_step_saved(tmp_path):
+    """The run's final state persists even off the save_interval grid — the
+    headline evals must never score a checkpoint up to save_interval−1 steps
+    stale (production: 61,037 steps with interval 4000 ⇒ last interval save 60,000)."""
+    path = tiny_yaml(tmp_path, training={"save_interval": 100})
+    state = train(path, batches=make_batches(4), max_steps=2)
+    assert CheckpointManager(load_config(path)["training"]["save_dir"]).latest_step() \
+        == state.step == 2
+
+
 def test_checkpoint_roundtrip(tmp_path):
     path = tiny_yaml(tmp_path)
     batches = make_batches(3)
