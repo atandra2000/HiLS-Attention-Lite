@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "HiLS \u00b7 Corpus to Training Windows",
+    "viewBox": [
+      1080,
+      400
+    ],
+    "quality_profile": "showcase"
+  },
+  "stages": [
+    {
+      "label": "Shared preparation"
+    },
+    {
+      "label": "GPT-2 tokenization"
+    },
+    {
+      "label": "Raw shards"
+    },
+    {
+      "label": "Host buffer"
+    },
+    {
+      "label": "Phase windows"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "prepare",
+      "type": "backend",
+      "label": "Clean & Deduplicate",
+      "sublabel": "shared_data pipeline",
+      "stage": 0,
+      "row": 0
+    },
+    {
+      "id": "tokenize",
+      "type": "backend",
+      "label": "GPT-2 + EOS",
+      "sublabel": "50257 vocabulary",
+      "stage": 1,
+      "row": 0
+    },
+    {
+      "id": "shards",
+      "type": "database",
+      "label": "uint32 Shards",
+      "sublabel": "50M tokens per shard",
+      "stage": 2,
+      "row": 0
+    },
+    {
+      "id": "buffer",
+      "type": "database",
+      "label": "Copy into RAM",
+      "sublabel": "np.empty(total)",
+      "stage": 3,
+      "row": 0
+    },
+    {
+      "id": "windows",
+      "type": "backend",
+      "label": "Input / Target",
+      "sublabel": "4097 or 16385 tokens",
+      "stage": 4,
+      "row": 0
+    }
+  ],
+  "flows": [
+    {
+      "from": "prepare",
+      "to": "tokenize",
+      "label": "clean text",
+      "variant": "emphasis"
+    },
+    {
+      "from": "tokenize",
+      "to": "shards",
+      "label": "token stream",
+      "variant": "emphasis"
+    },
+    {
+      "from": "shards",
+      "to": "buffer",
+      "label": "copy shards",
+      "variant": "emphasis"
+    },
+    {
+      "from": "buffer",
+      "to": "windows",
+      "label": "slice + shift",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "One canonical recipe",
+      "items": [
+        "FineWeb 40%, DCLM 15%, Python 15%, Jupyter 5%.",
+        "OpenMath 10%, arXiv 10%, Cosmopedia 5%."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Actual host memory",
+      "items": [
+        "ShardDataset maps raw uint32; loader copies every shard.",
+        "8B \u00d7 4 bytes = 32 GB host array before other allocations."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Training loader",
+      "items": [
+        "95/5 split requested; validation loader is not used by train.",
+        "Four workers, prefetch 4, pinned memory; random sampler."
+      ]
+    }
+  ]
+}

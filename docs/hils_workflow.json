@@ -1,0 +1,169 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "HiLS \u00b7 Train, Extend Context, Recover",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "setup",
+      "label": "Phase and input"
+    },
+    {
+      "id": "compute",
+      "label": "Loss and gradients"
+    },
+    {
+      "id": "update",
+      "label": "Optimizer and persistence"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "phase",
+      "lane": "setup",
+      "col": 0,
+      "type": "backend",
+      "label": "Choose Phase",
+      "sublabel": "A: 4K / B: 16K",
+      "width": 150
+    },
+    {
+      "id": "batch",
+      "lane": "setup",
+      "col": 1,
+      "type": "backend",
+      "label": "Load Micro-batch",
+      "sublabel": "phase-specific loader",
+      "width": 150
+    },
+    {
+      "id": "forward",
+      "lane": "compute",
+      "col": 1,
+      "type": "backend",
+      "label": "BF16 Forward",
+      "sublabel": "24 sparse blocks",
+      "width": 150
+    },
+    {
+      "id": "ce",
+      "lane": "compute",
+      "col": 2,
+      "type": "backend",
+      "label": "CE + Aux",
+      "sublabel": "check finite loss",
+      "width": 150
+    },
+    {
+      "id": "backward",
+      "lane": "compute",
+      "col": 3,
+      "type": "backend",
+      "label": "Backward / Accum",
+      "sublabel": "4 in A; 8 in B",
+      "width": 150
+    },
+    {
+      "id": "adam",
+      "lane": "update",
+      "col": 3,
+      "type": "backend",
+      "label": "Clip / AdamW",
+      "sublabel": "norm 1; set LR",
+      "width": 150
+    },
+    {
+      "id": "watch",
+      "lane": "update",
+      "col": 4,
+      "type": "backend",
+      "label": "Count / Save",
+      "sublabel": "every 4000 + final",
+      "width": 150
+    },
+    {
+      "id": "save",
+      "lane": "update",
+      "col": 5,
+      "type": "backend",
+      "label": "Watchdog",
+      "sublabel": "max-share > 0.5",
+      "width": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "step1",
+      "from": "phase",
+      "to": "batch"
+    },
+    {
+      "id": "step2",
+      "from": "batch",
+      "to": "forward"
+    },
+    {
+      "id": "step3",
+      "from": "forward",
+      "to": "ce"
+    },
+    {
+      "id": "step4",
+      "from": "ce",
+      "to": "backward"
+    },
+    {
+      "id": "step5",
+      "from": "backward",
+      "to": "adam"
+    },
+    {
+      "id": "step6",
+      "from": "adam",
+      "to": "watch"
+    },
+    {
+      "id": "step7",
+      "from": "watch",
+      "to": "save"
+    }
+  ],
+  "mainPath": [
+    "phase",
+    "batch",
+    "forward",
+    "ce",
+    "backward",
+    "adam",
+    "watch",
+    "save"
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Constant tokens per update",
+      "items": [
+        "A: 4096 \u00d7 8 \u00d7 4; B: 16384 \u00d7 1 \u00d7 8 = 131,072.",
+        "Switch at update 53,407; stop at 61,037 updates."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Learning-rate schedule",
+      "items": [
+        "2000-update warmup, then one cosine schedule.",
+        "500-update sine re-warm starts at the context switch."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Recovery has limits",
+      "items": [
+        "Nonfinite loss clears accumulation; threshold 5 triggers rollback.",
+        "Checkpoint files are direct writes; no RNG or sampler cursor."
+      ]
+    }
+  ]
+}

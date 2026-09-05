@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "scope": "HiLS Archify visual documentation and portal integration; training runtime unchanged",
+  "diagrams": [
+    {
+      "type": "architecture",
+      "output": "hils_architecture.html",
+      "specification": {
+        "sha256": "2f884359d36ad69c2725617aa885275ff0f16c6bfe8d9d44fc7a40e02a195b46",
+        "bytes": 4926
+      },
+      "artifact": {
+        "sha256": "270d48e4cc6fa8d28e499050c6c03a712892e30141b9771b337c1a117c3582b6",
+        "bytes": 711433
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": "passed",
+      "browser_receipt": "hils_architecture.visual-check.json",
+      "visual_review": "passed",
+      "visual_review_scope": "READ/still at 1440x900 and 2048x1320 in light/dark: label fit, routes, cards and layout. Export/focus panels not manually exercised.",
+      "correction_rounds": 0
+    },
+    {
+      "type": "dataflow",
+      "output": "hils_dataflow.html",
+      "specification": {
+        "sha256": "41bfeaa811d7278512bfcbbf4d1eda3654f40de74c14dfcdcc0c787e8e2d207f",
+        "bytes": 2494
+      },
+      "artifact": {
+        "sha256": "f073c720683e40f8ecad6d3cc32e57531b2940bd7726ed94909f2493ec8176d7",
+        "bytes": 705265
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": "passed",
+      "browser_receipt": "hils_dataflow.visual-check.json",
+      "visual_review": "passed",
+      "visual_review_scope": "READ/still at 1440x900 and 2048x1320 in light/dark: label fit, routes, cards and layout. Export/focus panels not manually exercised.",
+      "correction_rounds": 0
+    },
+    {
+      "type": "workflow",
+      "output": "hils_workflow.html",
+      "specification": {
+        "sha256": "e01754fb116332ef7b1a810f27d29c57ff4617057253b10cf557d5ad5daeee52",
+        "bytes": 3323
+      },
+      "artifact": {
+        "sha256": "c2e533738b34112aeaa165e18764416b87ec750a9b00f2268657d7873df8fbea",
+        "bytes": 706578
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": "passed",
+      "browser_receipt": "hils_workflow.visual-check.json",
+      "visual_review": "passed",
+      "visual_review_scope": "READ/still at 1440x900 and 2048x1320 in light/dark: label fit, routes, cards and layout. Export/focus panels not manually exercised.",
+      "correction_rounds": 0
+    }
+  ],
+  "guide": {
+    "status": "pass",
+    "artifact": {
+      "sha256": "986f85bc641063065fdf990a2c6d54fb06d091f760f4b935b6eb4038d1f9830c",
+      "bytes": 25394
+    },
+    "offline": true,
+    "viewports": [
+      {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "theme": "light"
+      },
+      {
+        "width": 390,
+        "scrollWidth": 390,
+        "theme": "light"
+      },
+      {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "theme": "dark"
+      },
+      {
+        "width": 390,
+        "scrollWidth": 390,
+        "theme": "dark"
+      }
+    ],
+    "links": 25,
+    "routingAndSchedule": {
+      "cases": 1024,
+      "failures": [],
+      "rates": [
+        [
+          0,
+          1.5e-07
+        ],
+        [
+          1999,
+          0.0003
+        ],
+        [
+          2000,
+          0.0003
+        ],
+        [
+          53407,
+          2.6585389394982323e-05
+        ],
+        [
+          53657,
+          0.0003
+        ],
+        [
+          53907,
+          2.513442006343332e-05
+        ],
+        [
+          61036,
+          1.500000020176046e-05
+        ],
+        [
+          61037,
+          1.5e-05
+        ]
+      ]
+    },
+    "interaction": {
+      "changed": true,
+      "phase": "Phase A \u00b7 4096 \u00d7 8 \u00d7 4 \u00b7 LR 1.50000e-7 \u00b7 131,072 token positions/update."
+    },
+    "keyboard": "pass",
+    "runtimeErrors": [],
+    "visual_review": "passed",
+    "visual_review_scope": "Light/dark desktop/mobile hero; all seven section starts, mobile routing grid and desktop LR chart."
+  },
+  "validation": {
+    "cpu_suite": "68 passed; 14 existing PyTorch/Python 3.14 deprecation warnings",
+    "docs": "15 documents, 223 symbol anchors; resolution, coverage, line-anchor and link gates passed",
+    "portal": "Build passed; master-guide links resolve to local source artifacts; browser check retains assertions",
+    "gpu": "Not run; A100 training, performance, retrieval and NLL gates unverified",
+    "git_diff_check": "passed"
+  },
+  "source_probe": {
+    "parameters": 341252096,
+    "causality": "Seed 7; one-layer FP64 tiny model, C=4; changing token index 3 from 4 to 9 changes index-0 logits by max 0.06140986118448995. Confirms within-chunk future dependency."
+  }
+}

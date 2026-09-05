@@ -66,8 +66,5 @@ docs_html/
 .superpowers/
 .docs-authoring/
 
-# Regenerable diagram build artifacts (visual-check HTML/PNG/JSON)
-docs/diagrams/
-
 # HiLS data root (large, regenerable)
 data/pretrain_chinchilla/

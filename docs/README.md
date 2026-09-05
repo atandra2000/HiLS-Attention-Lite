@@ -10,6 +10,12 @@ against the working tree by `scripts/check_docs.py` — the anchor names the
 symbol `Symbol` in `file.py`, and line numbers are never cited (they rot).
 `models/attention.py:HiLSAttention` therefore means "read that class."
 
+## Visual atlas
+
+Start with the [interactive visual guide](hils_visual_guide.html): three Archify
+maps, a routing experiment, a learning-rate explorer and source-grounded
+corrections to the unfinished draft. [Verification receipts](hils_receipts.json).
+
 ## Concepts
 
 - [HiLS routing](concepts/hils-routing.md) — chunking, landmarks, causal
@@ -21,6 +27,8 @@ symbol `Symbol` in `file.py`, and line numbers are never cited (they rot).
 
 ## Guides
 
+- [Master guide](guides/master-guide.md) — comprehensive overview of architecture,
+  data pipeline, two-phase pretraining, and systems optimizations
 - [Quickstart](guides/quickstart.md) — data → train → sample → evaluate,
   every command verified end-to-end
 - [A100 pod runbook](guides/a100-runbook.md) — boundary checks → the 40–48 h

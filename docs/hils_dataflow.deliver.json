@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/candidate_dataflow.json",
+  "output": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_dataflow.html",
+  "specification": {
+    "sha256": "41bfeaa811d7278512bfcbbf4d1eda3654f40de74c14dfcdcc0c787e8e2d207f",
+    "bytes": 2494
+  },
+  "artifact": {
+    "sha256": "f073c720683e40f8ecad6d3cc32e57531b2940bd7726ed94909f2493ec8176d7",
+    "bytes": 705265
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}

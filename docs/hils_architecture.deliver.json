@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/candidate_architecture.json",
+  "output": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_architecture.html",
+  "specification": {
+    "sha256": "2f884359d36ad69c2725617aa885275ff0f16c6bfe8d9d44fc7a40e02a195b46",
+    "bytes": 4926
+  },
+  "artifact": {
+    "sha256": "270d48e4cc6fa8d28e499050c6c03a712892e30141b9771b337c1a117c3582b6",
+    "bytes": 711433
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}
