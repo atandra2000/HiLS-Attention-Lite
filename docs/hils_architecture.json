@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "HiLS \u00b7 Model and Learned Routing",
+    "viewBox": [
+      1160,
+      640
+    ],
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "embed",
+      "type": "backend",
+      "label": "Embedding",
+      "sublabel": "V=50257, d=1024",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "qkv",
+      "type": "backend",
+      "label": "Norm / QKV / RoPE",
+      "sublabel": "16 Q heads / 4 KV heads",
+      "pos": [
+        220,
+        140
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "pool",
+      "type": "backend",
+      "label": "Chunk Summaries",
+      "sublabel": "mean Q; W_l mean K",
+      "pos": [
+        400,
+        140
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "score",
+      "type": "backend",
+      "label": "Retrieval Scores",
+      "sublabel": "Q mean dot landmarks",
+      "pos": [
+        580,
+        140
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "select",
+      "type": "backend",
+      "label": "Chunk Selection",
+      "sublabel": "own + top-7 past",
+      "pos": [
+        760,
+        140
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "weights",
+      "type": "backend",
+      "label": "Fusion Weights",
+      "sublabel": "per-head score softmax",
+      "pos": [
+        940,
+        140
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "attend",
+      "type": "backend",
+      "label": "Gather & SDPA",
+      "sublabel": "8 separate chunk softmaxes",
+      "pos": [
+        940,
+        340
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "residual",
+      "type": "backend",
+      "label": "Output + Residual",
+      "sublabel": "1024 to 1024",
+      "pos": [
+        760,
+        340
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "ffn",
+      "type": "backend",
+      "label": "Norm / SwiGLU",
+      "sublabel": "FFN 3072 + residual",
+      "pos": [
+        580,
+        340
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "norm",
+      "type": "backend",
+      "label": "Final RMSNorm",
+      "sublabel": "once after 24 blocks",
+      "pos": [
+        400,
+        340
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "head",
+      "type": "backend",
+      "label": "Tied LM Head",
+      "sublabel": "shared embedding weights",
+      "pos": [
+        220,
+        340
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "loss",
+      "type": "backend",
+      "label": "CE + Balance",
+      "sublabel": "8192-vocabulary slices",
+      "pos": [
+        40,
+        340
+      ],
+      "size": [
+        140,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "edge1",
+      "from": "embed",
+      "to": "qkv",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge2",
+      "from": "qkv",
+      "to": "pool",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge3",
+      "from": "pool",
+      "to": "score",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge4",
+      "from": "score",
+      "to": "select",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge5",
+      "from": "select",
+      "to": "weights",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge6",
+      "from": "weights",
+      "to": "attend",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge7",
+      "from": "attend",
+      "to": "residual",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge8",
+      "from": "residual",
+      "to": "ffn",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge9",
+      "from": "ffn",
+      "to": "norm",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge10",
+      "from": "norm",
+      "to": "head",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge11",
+      "from": "head",
+      "to": "loss",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "One block, repeated 24 times",
+      "items": [
+        "QKV through SwiGLU repeats; final norm and loss run once.",
+        "Top-k membership is head-shared; fusion weights are per head."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "How routing learns",
+      "items": [
+        "LM loss reaches scores through the selected fusion weights.",
+        "Auxiliary soft-mass balance: 0.01 \u00d7 N \u00d7 sum(p\u00b2)."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Causality boundary",
+      "items": [
+        "Selection permits only current and earlier chunks.",
+        "Within each chunk, SDPA is unmasked; this is not token-causal."
+      ]
+    }
+  ]
+}

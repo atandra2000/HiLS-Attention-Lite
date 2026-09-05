@@ -35,6 +35,7 @@ DOC_FILES = [
     ("docs/concepts/long-context-phases.md", "Concepts", "Long-Context Phases — 7B @ 4096 then 1B @ 16K"),
 
     # Guides
+    ("docs/guides/master-guide.md", "Guides", "Visual Master Guide — source notes and interactive atlas"),
     ("docs/guides/quickstart.md", "Guides", "Quickstart — data, train, sample, evaluate"),
     ("docs/guides/a100-runbook.md", "Guides", "A100 Pod Runbook — boundary checks, pretrain, headline evals"),
     ("docs/guides/debugging-playbook.md", "Guides", "Debugging Playbook — symptom-first recipes"),
@@ -195,6 +196,10 @@ def fix_md_links(content: str, src_rel_path: str) -> str:
             if anchor:
                 target += "#" + anchor
             return f"[{label}]({target})"
+        artifact = (src_dir / path_part).resolve()
+        if artifact.parent == WORKSPACE_DIR / "docs" and artifact.name.startswith("hils_") and artifact.suffix in {".html", ".json"}:
+            target = os.path.relpath(artifact, OUTPUT_DIR / Path(src_rel_path).parent).replace(os.sep, "/")
+            return f"[{label}]({target}{('#' + anchor) if anchor else ''})"
         if repo_base and not path_part.startswith("/"):
             try:
                 repo_rel = (src_dir / path_part).resolve().relative_to(WORKSPACE_DIR)

@@ -170,6 +170,8 @@ def main() -> int:
     args = p.parse_args()
 
     device = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    if args.tiny and args.seq > TINY_OURS["max_seq_len"]:
+        args.seq = TINY_OURS["max_seq_len"]
 
     # --- ours ---------------------------------------------------------------
     cfg = {"model": dict(TINY_OURS)} if args.tiny else load_config(args.config)

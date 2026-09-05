@@ -58,6 +58,29 @@ indexes concepts / guides / references (every `file.py:Symbol` anchor is
 gate-checked by `scripts/check_docs.py`, and the HTML portal builds via
 `python scripts/build_docs_html.py`).
 
+---
+
+## 🗺️ Visual Architecture Atlas
+
+> Explore the full **[Interactive Visual Systems Guide](docs/hils_visual_guide.html)**: three verified Archify showcase maps, live routing experiment, learning-rate schedule explorer, and [verification receipts](docs/hils_receipts.json).
+
+<div align="center">
+  <a href="docs/hils_visual_guide.html">
+    <img src="docs/hils_architecture.visual-check.1440x900.dark.png" alt="HiLS Architecture Overview" width="100%" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
+  </a>
+  <p><em>Figure 1: HiLS-Attention-Lite Architecture Map — ~341M GQA transformer with landmark-guided chunk routing, causal top-k selection, and score-fused attention. Click image to open interactive guide.</em></p>
+</div>
+
+### Interactive Architecture & Systems Diagrams
+
+| Diagram | Description | Interactive HTML | Visual Preview |
+|---|---|:---:|:---:|
+| **HiLS Architecture** | 16-layer GQA transformer, learned landmark projections, chunking mechanism ($C=64$), causal top-k routing, and score fusion | [Open Map ↗](docs/hils_architecture.html) | [PNG](docs/hils_architecture.visual-check.1440x900.dark.png) |
+| **Data Pipeline** | 8.0B-token universal pipeline, GPT-2 BPE tokenizer, binary chunk sharding, and memory-mapped `PretrainDataset` | [Open Map ↗](docs/hils_dataflow.html) | [PNG](docs/hils_dataflow.visual-check.1440x900.dark.png) |
+| **Pretraining Workflow** | Two-phase pretraining (Phase 1: 7B @ 4096 ctx; Phase 2: 1B @ 16K ctx), AdamW schedule, and checkpoint validation | [Open Map ↗](docs/hils_workflow.html) | [PNG](docs/hils_workflow.visual-check.1440x900.dark.png) |
+
+---
+
 ## Verification at a glance
 
 | test class | pins |
