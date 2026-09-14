@@ -75,7 +75,7 @@ gate-checked by `scripts/check_docs.py`, and the HTML portal builds via
 
 | Diagram | Description | Interactive HTML | Visual Preview |
 |---|---|:---:|:---:|
-| **HiLS Architecture** | 16-layer GQA transformer, learned landmark projections, chunking mechanism ($C=64$), causal top-k routing, and score fusion | [Open Map ↗](docs/hils_architecture.html) | [PNG](docs/hils_architecture.visual-check.1440x900.dark.png) |
+| **HiLS Architecture** | 24-layer GQA transformer, learned landmark projections, chunking mechanism ($C=128$), causal top-k routing, and score fusion | [Open Map ↗](docs/hils_architecture.html) | [PNG](docs/hils_architecture.visual-check.1440x900.dark.png) |
 | **Data Pipeline** | 8.0B-token universal pipeline, GPT-2 BPE tokenizer, binary chunk sharding, and memory-mapped `PretrainDataset` | [Open Map ↗](docs/hils_dataflow.html) | [PNG](docs/hils_dataflow.visual-check.1440x900.dark.png) |
 | **Pretraining Workflow** | Two-phase pretraining (Phase 1: 7B @ 4096 ctx; Phase 2: 1B @ 16K ctx), AdamW schedule, and checkpoint validation | [Open Map ↗](docs/hils_workflow.html) | [PNG](docs/hils_workflow.visual-check.1440x900.dark.png) |
 

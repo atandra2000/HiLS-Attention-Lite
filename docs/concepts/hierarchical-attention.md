@@ -67,7 +67,7 @@ backbone carries **none of the novelty** — the house block exists so the
 chunked-CE / checkpointing / eval machinery stays drop-in and the sparse
 attention is the only variable (DESIGN §1).
 
-## The loss path (never materialize (B, T, V))
+## The loss path (chunked CE, bounded fp32 peak)
 
 `models/transformer.py:HiLSAttentionLM.forward` with targets computes the LM
 loss through `training/losses.py:chunked_lm_ce`: vocab-chunked fp32

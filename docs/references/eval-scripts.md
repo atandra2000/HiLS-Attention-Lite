@@ -43,6 +43,7 @@ model needed.
 | `--steps` / `--warmup` | 3 / 1 | timed / untimed decode chunks per length |
 | `--tiny` | off | 2-layer random-init config, no checkpoints (self-check) |
 | `--device` | auto | `cuda` when available |
+| `--baseline-repo` | `../LLaMA-3-Lite` | baseline repo dir (config/tokenizer source for the baseline checkpoint) |
 
 ```bash
 python scripts/longctx_eval.py --tiny --ctx 512 1024                     # CPU self-check
@@ -93,6 +94,8 @@ not matched-budget.
 |---|---|---|
 | `--ours-ckpt` | none | our checkpoint dir (optional — tiny form runs without it) |
 | `--baseline-ckpt` | none | LLaMA-3-Lite `.pt` checkpoint |
+| `--baseline-repo` | `../LLaMA-3-Lite` | baseline repo dir (config/tokenizer source) |
+| `--baseline-tokenizer` | repo default | override tokenizer for the baseline model |
 | `--texts-file` | none | UTF-8 held-out text; tokenized separately per model |
 | `--ours-shard` / `--baseline-shard` | none | pre-tokenized uint32 held-out windows |
 | `--seq` / `--windows` | 4096 / 8 | window length and count |
