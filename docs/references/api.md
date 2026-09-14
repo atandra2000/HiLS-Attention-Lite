@@ -34,7 +34,7 @@ symbol must appear at least once across the docs.
 
 | anchor | what it is |
 |---|---|
-| `training/losses.py:chunked_lm_ce` | vocab-chunked LM cross-entropy; never materializes (B, T, V) |
+| `training/losses.py:chunked_lm_ce` | vocab-chunked LM cross-entropy; bounds the fp32 CE peak (retained bf16 logits still total O(B·T·V)) |
 | `training/pretrain.py:load_config` | parse the YAML; validate the model section eagerly |
 | `training/pretrain.py:build_optimizer` | fused AdamW, fp32 master weights, decay ≥2-D params |
 | `training/pretrain.py:lr_at` | warmup → cosine + 500-step re-warm tent at the switch |

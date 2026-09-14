@@ -224,7 +224,7 @@ pair `utils/memory.py:estimate_model_memory_gb` /
 `scripts/e2e_gpu_smoke.py`) verify the estimates and the loop mechanics
 before the 40–48 h run is spent.
 
-## 5. The loss: never materialize (B, T, V)
+## 5. The loss: chunked cross-entropy, bounded fp32 peak
 
 At micro_bs 8 / seq 4096 / vocab 50,257, a naive fp32 cross-entropy
 materializes ~6.6 GB of logits — the largest single line item in the VRAM
@@ -232,7 +232,10 @@ budget and the reason `training/losses.py:chunked_lm_ce` exists. It walks
 the vocab in 8192-token slices: per slice, one head GEMM, an fp32 logsumexp,
 and the target logit; a custom autograd Function retains each chunk's bf16
 logits so backward derives the softmax from them instead of recomputing the
-GEMM. Global normalization composes the chunk logsumexps exactly, and the
+GEMM. The saving is the **peak**, not the total: retained bf16 chunk logits
+still sum to O(B·T·V) (~3.3 GB) — no single fp32 (B, T, V) tensor or fp32
+logsumexp monolith ever exists, but the retained chain is real (master-guide
+correction 2). Global normalization composes the chunk logsumexps exactly, and the
 pipeline is proven against plain `F.cross_entropy` over full logits
 (`tests/test_loss.py`, fp32 atol 1e-6). The model's `forward(tokens,
 targets)` returns `(CE + aux, aux)` — the aux term rides alongside, which is
@@ -246,8 +249,10 @@ this repo's tokenizer contract (GPT-2 BPE, vocab 50,257, EOS/PAD 50256 —
 house parity with the other Lites) and pins the data root so the pack
 subprocess writes to `data/pretrain_chinchilla/shards/`. The corpus is the
 same Chinchilla mixture as DiffusionGemma-Lite / Mamba-3-Lite: 8.0B tokens,
-no cross-document boundaries inside a window, 50M-token uint32 shards,
-shuffle seed 42. Phase B consumes the same shards at seq 16384 — windows
+50M-token uint32 shards, shuffle seed 42. Windows are fixed `(seq+1)`-token
+slices of the EOS-separated stream — they can span document boundaries; EOS
+is the only separator, with no per-document mask (master-guide correction 3).
+Phase B consumes the same shards at seq 16384 — windows
 are longer, not different data.
 
 ## 7. Verification: the load-bearing tests
@@ -417,7 +422,7 @@ data/         prepare_data.py — shared_data shim, GPT-2 tokenizer contract
 utils/        checkpoint · logging · memory (budget table + guard)
 scripts/      launch_a100.sh · microbench_a100 · step_time_a100 · e2e_gpu_smoke
               longctx_eval · retrieval_eval · loss_parity_eval · check_docs · build_docs_html
-tests/        21-test core matrix + evaluator protocol + doc gate (66 total, CPU)
+tests/        13 files, 68 tests: core matrix + evaluator protocol + doc gate (CPU)
 configs/      pretrain_a100_341m.yaml — the one production config
 docs/         concepts · guides · references (symbol-anchored, gate-checked)
 ```

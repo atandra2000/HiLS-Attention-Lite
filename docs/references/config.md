@@ -26,10 +26,11 @@ an unknown or missing key fails before any GPU is touched).
 | `selection_scope` | "per_query_chunk" | all C queries of a chunk share S(i) |
 | `aux_balance_weight` | 0.01 | λ for the Herfindahl load-balance term |
 | `straight_through_selection` | false | ablation flag, not implemented in v1 — validated fail-fast (`__post_init__` rejects `true`) |
-| `landmark_init` / `fusion` / `selection_scope` | identity / score_softmax / per_query_chunk | single-implementation knobs, validated eagerly: any other value fails at `models/transformer.py:HiLSConfig` construction |
 
 Invariants the constructor enforces: `attn_impl ∈ {sdpa, eager}`,
-`n_heads · head_dim == d_model`, and identity-init is *restored* after the
+`n_heads · head_dim == d_model`, the single-implementation knobs
+(`landmark_init` / `fusion` / `selection_scope`) reject any non-default value,
+and identity-init is *restored* after the
 normal-init pass so W_ℓ = I at step 0 regardless of `init_std`.
 
 ## `training:` — the loop

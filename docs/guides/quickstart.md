@@ -18,7 +18,7 @@ uv run --no-project --with-requirements requirements.txt python \
 python3 -m pytest -m "not gpu and not slow"
 ```
 
-Expected: the interpreter version, the torch version, and `66 passed`
+Expected: the interpreter version, the torch version, and `68 passed`
 (CPU-only gate; `pytest.ini` marks `gpu`/`slow` tests out). A doc-integrity
 pass rides the same gate:
 

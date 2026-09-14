@@ -52,11 +52,16 @@ Resume semantics — the part that matters when the pod dies at hour 30:
 
 - `utils/checkpoint.py:CheckpointManager` writes three files per step
   (weights safetensors + optimizer pt + meta json). A step is resumable only
-  when all three exist; a checkpoint torn mid-write is ignored, so a crash
-  can never resume into a half-written state.
-- Re-running the launcher after a crash is safe by construction — it picks up
-  at the last complete save (`save_interval: 4000`, so a worst-case loss is
-  < 4000 steps ≈ 30 min at Phase A pace).
+  when all three exist, and meta is written last — a crash mid-save leaves
+  the step incomplete and resume falls back to the previous set. This is
+  direct writes + existence checks, not atomic rename (master-guide
+  correction 4); a torn *final* meta write is the one small residual window.
+- Re-running the launcher after a crash is safe — it picks up at the last
+  complete save (`save_interval: 4000`, so worst-case rework is < 4000 steps
+  ≈ 2.5–3 h at the MFU-gate pace, ~2.4 s/step). Data order is not in the
+  checkpoint: the sampler restarts its permutation from offset 0, so
+  pre-crash windows are re-seen until the loop catches up — safe for
+  training, but the replay is real compute (master-guide correction 4).
 - Interrupting intentionally (Ctrl-C, timeout) is equally safe; just relaunch.
 
 What to watch in the log (`utils/logging.py:TrainingLogger` every 50 steps):
