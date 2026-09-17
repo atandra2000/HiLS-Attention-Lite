@@ -3,7 +3,7 @@
   "ok": true,
   "command": "validate",
   "type": "architecture",
-  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/candidate_architecture.json",
+  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_architecture.json",
   "checks": [
     {
       "name": "single_svg",
@@ -73,7 +73,7 @@
       "routesOverSuggestedBends": 0,
       "maxStretch": 1,
       "routesOverSuggestedStretch": 0,
-      "minSegmentPx": 40,
+      "minSegmentPx": 80,
       "minInteriorSegmentPx": null,
       "shortSegmentCount": 0,
       "shortEndpointSegmentCount": 0,

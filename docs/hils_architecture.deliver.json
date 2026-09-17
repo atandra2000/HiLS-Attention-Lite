@@ -3,15 +3,15 @@
   "ok": true,
   "command": "deliver",
   "type": "architecture",
-  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/candidate_architecture.json",
+  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_architecture.json",
   "output": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_architecture.html",
   "specification": {
-    "sha256": "2f884359d36ad69c2725617aa885275ff0f16c6bfe8d9d44fc7a40e02a195b46",
-    "bytes": 4926
+    "sha256": "62c890fd151416e317f5ff348c60f9bc7be49e9f8a163d5f48740dd9c8d2ad9f",
+    "bytes": 4636
   },
   "artifact": {
-    "sha256": "270d48e4cc6fa8d28e499050c6c03a712892e30141b9771b337c1a117c3582b6",
-    "bytes": 711433
+    "sha256": "70be359718a7bca71978a3cc43228d986e8f394dc8bf7987ee6aa580c2b1ab01",
+    "bytes": 711352
   },
   "validation": {
     "checksPassed": 9,

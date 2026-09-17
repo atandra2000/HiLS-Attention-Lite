@@ -3,15 +3,15 @@
   "ok": true,
   "command": "deliver",
   "type": "dataflow",
-  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/candidate_dataflow.json",
+  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_dataflow.json",
   "output": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_dataflow.html",
   "specification": {
-    "sha256": "41bfeaa811d7278512bfcbbf4d1eda3654f40de74c14dfcdcc0c787e8e2d207f",
-    "bytes": 2494
+    "sha256": "f79c693a5ab4576229b3c84668ddbba7d6e14188bb35df4a467e5e98fbb55d56",
+    "bytes": 2619
   },
   "artifact": {
-    "sha256": "f073c720683e40f8ecad6d3cc32e57531b2940bd7726ed94909f2493ec8176d7",
-    "bytes": 705265
+    "sha256": "0c92703e761a52f698d26faa5f1e9097d670f29b4efc5b1ed75129c29bbea192",
+    "bytes": 705433
   },
   "validation": {
     "checksPassed": 9,

@@ -46,15 +46,15 @@
     {
       "id": "shards",
       "type": "database",
-      "label": "uint32 Shards",
-      "sublabel": "50M tokens per shard",
+      "label": "uint16 shards",
+      "sublabel": "GPT-2 packed storage",
       "stage": 2,
       "row": 0
     },
     {
       "id": "buffer",
       "type": "database",
-      "label": "Copy into RAM",
+      "label": "uint32 host copy",
       "sublabel": "np.empty(total)",
       "stage": 3,
       "row": 0
@@ -97,7 +97,7 @@
   "cards": [
     {
       "dot": "cyan",
-      "title": "One canonical recipe",
+      "title": "Declared recipe, not measured quotas",
       "items": [
         "FineWeb 40%, DCLM 15%, Python 15%, Jupyter 5%.",
         "OpenMath 10%, arXiv 10%, Cosmopedia 5%."
@@ -105,18 +105,20 @@
     },
     {
       "dot": "rose",
-      "title": "Actual host memory",
+      "title": "Storage is not host allocation",
       "items": [
-        "ShardDataset maps raw uint32; loader copies every shard.",
-        "8B \u00d7 4 bytes = 32 GB host array before other allocations."
+        "GPT-2 packing selects uint16; read actual manifest dtype.",
+        "If 8B tokens: 16 GB raw payload; 32 GB uint32 host array.",
+        "Calculated payloads only, not measured RSS or corpus inventory."
       ]
     },
     {
       "dot": "emerald",
-      "title": "Training loader",
+      "title": "Pinned implementation",
       "items": [
-        "95/5 split requested; validation loader is not used by train.",
-        "Four workers, prefetch 4, pinned memory; random sampler."
+        "Revision 3dadb375e1e0",
+        "Config: configs/pretrain_a100_341m.yaml",
+        "Window copy + int64 inputs/targets + batch collation allocate."
       ]
     }
   ]

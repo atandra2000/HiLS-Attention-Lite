@@ -3,7 +3,7 @@
   "ok": true,
   "command": "validate",
   "type": "dataflow",
-  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/candidate_dataflow.json",
+  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_dataflow.json",
   "checks": [
     {
       "name": "single_svg",

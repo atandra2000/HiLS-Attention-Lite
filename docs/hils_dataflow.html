@@ -5074,27 +5074,27 @@
           <text data-detail="context" x="315" y="165" class="t-muted" font-size="7" text-anchor="middle">50257 vocabulary</text>
         </g>
 
-        <g id="node-shards" data-node-id="shards" data-node-label="uint32 Shards" tabindex="0" role="button" aria-label="Focus uint32 Shards, 50M tokens per shard, 03 / Raw shards" aria-pressed="false" data-node-kind="database" data-node-sublabel="50M tokens per shard" data-node-context="03 / Raw shards">
-          <title>uint32 Shards · 50M tokens per shard · 03 / Raw shards</title>
+        <g id="node-shards" data-node-id="shards" data-node-label="uint16 shards" tabindex="0" role="button" aria-label="Focus uint16 shards, GPT-2 packed storage, 03 / Raw shards" aria-pressed="false" data-node-kind="database" data-node-sublabel="GPT-2 packed storage" data-node-context="03 / Raw shards">
+          <title>uint16 shards · GPT-2 packed storage · 03 / Raw shards</title>
           <rect x="474" y="128" width="112" height="58" rx="6" class="c-mask"/>
           <rect x="474" y="128" width="112" height="58" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(480 134) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="530" y="149" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">uint32 Shards</text>
-          <text data-detail="context" x="530" y="165" class="t-muted" font-size="7" text-anchor="middle">50M tokens per shard</text>
+          <text data-node-label="" data-detail-anchor="" x="530" y="149" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">uint16 shards</text>
+          <text data-detail="context" x="530" y="165" class="t-muted" font-size="7" text-anchor="middle">GPT-2 packed storage</text>
         </g>
 
-        <g id="node-buffer" data-node-id="buffer" data-node-label="Copy into RAM" tabindex="0" role="button" aria-label="Focus Copy into RAM, np.empty(total), 04 / Host buffer" aria-pressed="false" data-node-kind="database" data-node-sublabel="np.empty(total)" data-node-context="04 / Host buffer">
-          <title>Copy into RAM · np.empty(total) · 04 / Host buffer</title>
+        <g id="node-buffer" data-node-id="buffer" data-node-label="uint32 host copy" tabindex="0" role="button" aria-label="Focus uint32 host copy, np.empty(total), 04 / Host buffer" aria-pressed="false" data-node-kind="database" data-node-sublabel="np.empty(total)" data-node-context="04 / Host buffer">
+          <title>uint32 host copy · np.empty(total) · 04 / Host buffer</title>
           <rect x="689" y="128" width="112" height="58" rx="6" class="c-mask"/>
           <rect x="689" y="128" width="112" height="58" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(695 134) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="745" y="149" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">Copy into RAM</text>
+          <text data-node-label="" data-detail-anchor="" x="745" y="149" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">uint32 host copy</text>
           <text data-detail="context" x="745" y="165" class="t-muted" font-size="7" text-anchor="middle">np.empty(total)</text>
         </g>
 
@@ -5328,7 +5328,7 @@
       <div class="card">
         <div class="card-header">
           <div class="card-dot cyan"></div>
-          <h3>One canonical recipe</h3>
+          <h3>Declared recipe, not measured quotas</h3>
         </div>
         <ul>
           <li>&bull; FineWeb 40%, DCLM 15%, Python 15%, Jupyter 5%.</li>
@@ -5339,22 +5339,24 @@
       <div class="card">
         <div class="card-header">
           <div class="card-dot rose"></div>
-          <h3>Actual host memory</h3>
+          <h3>Storage is not host allocation</h3>
         </div>
         <ul>
-          <li>&bull; ShardDataset maps raw uint32; loader copies every shard.</li>
-          <li>&bull; 8B × 4 bytes = 32 GB host array before other allocations.</li>
+          <li>&bull; GPT-2 packing selects uint16; read actual manifest dtype.</li>
+          <li>&bull; If 8B tokens: 16 GB raw payload; 32 GB uint32 host array.</li>
+          <li>&bull; Calculated payloads only, not measured RSS or corpus inventory.</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot emerald"></div>
-          <h3>Training loader</h3>
+          <h3>Pinned implementation</h3>
         </div>
         <ul>
-          <li>&bull; 95/5 split requested; validation loader is not used by train.</li>
-          <li>&bull; Four workers, prefetch 4, pinned memory; random sampler.</li>
+          <li>&bull; Revision 3dadb375e1e0</li>
+          <li>&bull; Config: configs/pretrain_a100_341m.yaml</li>
+          <li>&bull; Window copy + int64 inputs/targets + batch collation allocate.</li>
         </ul>
       </div>
     </div>
