@@ -1,17 +1,18 @@
 {
-  "schemaVersion": 1,
-  "scope": "HiLS Archify visual documentation and portal integration; training runtime unchanged",
+  "schemaVersion": 2,
+  "scope": "HiLS diagram repairs: pinned source, corrected storage/loop semantics; refreshed evidence",
+  "revision": "3dadb375e1e0",
   "diagrams": [
     {
       "type": "architecture",
       "output": "hils_architecture.html",
       "specification": {
-        "sha256": "2f884359d36ad69c2725617aa885275ff0f16c6bfe8d9d44fc7a40e02a195b46",
-        "bytes": 4926
+        "sha256": "62c890fd151416e317f5ff348c60f9bc7be49e9f8a163d5f48740dd9c8d2ad9f",
+        "bytes": 4636
       },
       "artifact": {
-        "sha256": "270d48e4cc6fa8d28e499050c6c03a712892e30141b9771b337c1a117c3582b6",
-        "bytes": 711433
+        "sha256": "70be359718a7bca71978a3cc43228d986e8f394dc8bf7987ee6aa580c2b1ab01",
+        "bytes": 711352
       },
       "validation": {
         "checksPassed": 9,
@@ -23,20 +24,19 @@
       },
       "browser_evidence": "passed",
       "browser_receipt": "hils_architecture.visual-check.json",
-      "visual_review": "passed",
-      "visual_review_scope": "READ/still at 1440x900 and 2048x1320 in light/dark: label fit, routes, cards and layout. Export/focus panels not manually exercised.",
-      "correction_rounds": 0
+      "visual_review": "skipped (image reader unavailable)",
+      "correction_rounds": 1
     },
     {
       "type": "dataflow",
       "output": "hils_dataflow.html",
       "specification": {
-        "sha256": "41bfeaa811d7278512bfcbbf4d1eda3654f40de74c14dfcdcc0c787e8e2d207f",
-        "bytes": 2494
+        "sha256": "f79c693a5ab4576229b3c84668ddbba7d6e14188bb35df4a467e5e98fbb55d56",
+        "bytes": 2619
       },
       "artifact": {
-        "sha256": "f073c720683e40f8ecad6d3cc32e57531b2940bd7726ed94909f2493ec8176d7",
-        "bytes": 705265
+        "sha256": "0c92703e761a52f698d26faa5f1e9097d670f29b4efc5b1ed75129c29bbea192",
+        "bytes": 705433
       },
       "validation": {
         "checksPassed": 9,
@@ -48,20 +48,19 @@
       },
       "browser_evidence": "passed",
       "browser_receipt": "hils_dataflow.visual-check.json",
-      "visual_review": "passed",
-      "visual_review_scope": "READ/still at 1440x900 and 2048x1320 in light/dark: label fit, routes, cards and layout. Export/focus panels not manually exercised.",
-      "correction_rounds": 0
+      "visual_review": "skipped (image reader unavailable)",
+      "correction_rounds": 1
     },
     {
       "type": "workflow",
       "output": "hils_workflow.html",
       "specification": {
-        "sha256": "e01754fb116332ef7b1a810f27d29c57ff4617057253b10cf557d5ad5daeee52",
-        "bytes": 3323
+        "sha256": "2d1c3e17a4e7c3ff6d329ccb492f1e49f7f21b12883113d8126ef0357b58b6d6",
+        "bytes": 5857
       },
       "artifact": {
-        "sha256": "c2e533738b34112aeaa165e18764416b87ec750a9b00f2268657d7873df8fbea",
-        "bytes": 706578
+        "sha256": "a8b0e575ff7cdeee7a5ef428ede671481c1100a31c623753fe536a8e51e1b60f",
+        "bytes": 717968
       },
       "validation": {
         "checksPassed": 9,
@@ -73,16 +72,15 @@
       },
       "browser_evidence": "passed",
       "browser_receipt": "hils_workflow.visual-check.json",
-      "visual_review": "passed",
-      "visual_review_scope": "READ/still at 1440x900 and 2048x1320 in light/dark: label fit, routes, cards and layout. Export/focus panels not manually exercised.",
-      "correction_rounds": 0
+      "visual_review": "skipped (image reader unavailable)",
+      "correction_rounds": 2
     }
   ],
   "guide": {
     "status": "pass",
     "artifact": {
-      "sha256": "986f85bc641063065fdf990a2c6d54fb06d091f760f4b935b6eb4038d1f9830c",
-      "bytes": 25394
+      "sha256": "95eef14423d5f485d940d4e74a09f2c1acf2c7328dab6827111a355c6b33d870",
+      "bytes": 26091
     },
     "offline": true,
     "viewports": [
@@ -152,18 +150,19 @@
     },
     "keyboard": "pass",
     "runtimeErrors": [],
-    "visual_review": "passed",
-    "visual_review_scope": "Light/dark desktop/mobile hero; all seven section starts, mobile routing grid and desktop LR chart."
+    "visual_review": "skipped (image reader unavailable)"
   },
   "validation": {
-    "cpu_suite": "68 passed; 14 existing PyTorch/Python 3.14 deprecation warnings",
-    "docs": "15 documents, 223 symbol anchors; resolution, coverage, line-anchor and link gates passed",
-    "portal": "Build passed; master-guide links resolve to local source artifacts; browser check retains assertions",
-    "gpu": "Not run; A100 training, performance, retrieval and NLL gates unverified",
-    "git_diff_check": "passed"
+    "cpu_suite": "68 passed (Python 3.14 / PyTorch 2.12; system Python 3.9 / PyTorch 2.8 cannot import models.attention: pre-existing environment mismatch)",
+    "docs": "check_docs --coverage --links: resolution, coverage, line anchors and links PASS",
+    "guide_browser": "pass",
+    "gpu": "not run; A100 gates unverified",
+    "perceptual_review": "unavailable this session",
+    "px_target": "proposed 12px essential / 11px secondary standard not met; automated 6px floor passed"
   },
-  "source_probe": {
-    "parameters": 341252096,
-    "causality": "Seed 7; one-layer FP64 tiny model, C=4; changing token index 3 from 4 to 9 changes index-0 logits by max 0.06140986118448995. Confirms within-chunk future dependency."
+  "source_pinning": "See docs/quality-review.md for revision, config hash and per-file SHA-256 table. Shared_data is outside Git and pinned by file hash only.",
+  "vault_sync": {
+    "scope": "scoped project trees only",
+    "path": "~/Documents/obsidian/LLM/HiLS-Attention-Lite"
   }
 }

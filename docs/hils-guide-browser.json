@@ -1,8 +1,8 @@
 {
   "status": "pass",
   "artifact": {
-    "sha256": "986f85bc641063065fdf990a2c6d54fb06d091f760f4b935b6eb4038d1f9830c",
-    "bytes": 25394
+    "sha256": "95eef14423d5f485d940d4e74a09f2c1acf2c7328dab6827111a355c6b33d870",
+    "bytes": 26091
   },
   "offline": true,
   "viewports": [

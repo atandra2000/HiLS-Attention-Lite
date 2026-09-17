@@ -3,15 +3,15 @@
   "ok": true,
   "command": "deliver",
   "type": "workflow",
-  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/candidate_workflow.json",
+  "input": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_workflow.json",
   "output": "/Users/atandrabharati/Desktop/CoreProjects/LLM/HiLS-Attention-Lite/docs/hils_workflow.html",
   "specification": {
-    "sha256": "e01754fb116332ef7b1a810f27d29c57ff4617057253b10cf557d5ad5daeee52",
-    "bytes": 3323
+    "sha256": "2d1c3e17a4e7c3ff6d329ccb492f1e49f7f21b12883113d8126ef0357b58b6d6",
+    "bytes": 5857
   },
   "artifact": {
-    "sha256": "c2e533738b34112aeaa165e18764416b87ec750a9b00f2268657d7873df8fbea",
-    "bytes": 706578
+    "sha256": "a8b0e575ff7cdeee7a5ef428ede671481c1100a31c623753fe536a8e51e1b60f",
+    "bytes": 717968
   },
   "validation": {
     "checksPassed": 9,

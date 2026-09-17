@@ -57,7 +57,7 @@ From the project root:
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -m "not gpu and not slow" -p no:cacheprovider
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_docs.py --coverage --links
-node docs/check-hils-guide.mjs docs /tmp
+node docs/check-hils-guide.mjs docs "$JCODE_SCRATCH_DIR"
 python3 scripts/build_docs_html.py
 ```
 
@@ -66,8 +66,8 @@ local files with the network disabled, measures desktop/mobile containment,
 checks routing causality/padding/ties and head-specific weights, tests the LR
 schedule and keyboard input, and records screenshots and an artifact hash.
 
-Diagram specs are `candidate_architecture.json`, `candidate_dataflow.json` and
-`candidate_workflow.json`. Archify `deliver` records exact specification/HTML
+Diagram specs are `hils_architecture.json`, `hils_dataflow.json` and
+`hils_workflow.json`. Archify `deliver` records exact specification/HTML
 hashes and nine showcase checks. `visual-check` separately measures the real
 browser at four desktop sizes and captures both endpoint themes. Screenshot
 inspection is recorded independently in the combined receipt.
@@ -76,3 +76,7 @@ The 68-test CPU baseline passes. A100 throughput, training duration, retrieval,
 NLL parity and peak-memory gates are not measured in this documentation task.
 The causal contract needs review before interpreting next-token quality results.
 Model/training code and the pre-existing loss-parity-script edit are preserved.
+
+## Current quality-review pass
+
+See [pinned source and limits](../quality-review.md). All guides use Overview → Model → Data → Training → Distinctive mechanism → Evidence. Prior perceptual approval does not apply to refreshed artifacts. The proposed 11/12px target remains unmet.

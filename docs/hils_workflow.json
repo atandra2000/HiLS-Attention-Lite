@@ -2,167 +2,280 @@
   "schema_version": 2,
   "diagram_type": "workflow",
   "meta": {
-    "title": "HiLS \u00b7 Train, Extend Context, Recover",
+    "title": "HiLS \u00b7 Training",
     "quality_profile": "showcase"
   },
   "lanes": [
     {
-      "id": "setup",
-      "label": "Phase and input"
-    },
-    {
-      "id": "compute",
-      "label": "Loss and gradients"
+      "id": "run",
+      "label": "Micro-batches"
     },
     {
       "id": "update",
-      "label": "Optimizer and persistence"
+      "label": "Optimizer updates"
+    },
+    {
+      "id": "recovery",
+      "label": "Recovery",
+      "variant": "exception"
     }
   ],
   "nodes": [
     {
       "id": "phase",
-      "lane": "setup",
+      "lane": "run",
       "col": 0,
       "type": "backend",
-      "label": "Choose Phase",
-      "sublabel": "A: 4K / B: 16K",
-      "width": 150
+      "label": "Limit / phase",
+      "sublabel": "A:4K; B:16K",
+      "width": 140
     },
     {
       "id": "batch",
-      "lane": "setup",
+      "lane": "run",
       "col": 1,
       "type": "backend",
-      "label": "Load Micro-batch",
-      "sublabel": "phase-specific loader",
-      "width": 150
+      "label": "Fetch batch",
+      "sublabel": "phase loader",
+      "width": 140
     },
     {
-      "id": "forward",
-      "lane": "compute",
-      "col": 1,
-      "type": "backend",
-      "label": "BF16 Forward",
-      "sublabel": "24 sparse blocks",
-      "width": 150
-    },
-    {
-      "id": "ce",
-      "lane": "compute",
+      "id": "loss",
+      "lane": "run",
       "col": 2,
       "type": "backend",
-      "label": "CE + Aux",
-      "sublabel": "check finite loss",
-      "width": 150
+      "label": "Forward / CE + aux",
+      "sublabel": "BF16 on CUDA",
+      "width": 140
+    },
+    {
+      "id": "finite",
+      "lane": "run",
+      "col": 3,
+      "type": "security",
+      "label": "Finite loss?",
+      "sublabel": "before backward",
+      "width": 140
     },
     {
       "id": "backward",
-      "lane": "compute",
-      "col": 3,
+      "lane": "run",
+      "col": 4,
       "type": "backend",
-      "label": "Backward / Accum",
+      "label": "Backward / accum",
       "sublabel": "4 in A; 8 in B",
-      "width": 150
+      "width": 140
+    },
+    {
+      "id": "done",
+      "lane": "run",
+      "col": 5,
+      "type": "backend",
+      "label": "Finish",
+      "sublabel": "save final if needed",
+      "width": 140
     },
     {
       "id": "adam",
       "lane": "update",
-      "col": 3,
+      "col": 4,
       "type": "backend",
-      "label": "Clip / AdamW",
-      "sublabel": "norm 1; set LR",
-      "width": 150
+      "label": "LR / clip / AdamW",
+      "sublabel": "update++; save /4000",
+      "width": 140
     },
     {
       "id": "watch",
       "lane": "update",
-      "col": 4,
-      "type": "backend",
-      "label": "Count / Save",
-      "sublabel": "every 4000 + final",
-      "width": 150
+      "col": 5,
+      "type": "security",
+      "label": "Watchdog",
+      "sublabel": ">0.5 for 500 updates",
+      "width": 140
     },
     {
-      "id": "save",
-      "lane": "update",
-      "col": 5,
+      "id": "clear",
+      "lane": "recovery",
+      "col": 3,
       "type": "backend",
-      "label": "Watchdog",
-      "sublabel": "max-share > 0.5",
-      "width": 150
+      "label": "Discard gradients",
+      "sublabel": "micro=0; bad++",
+      "width": 140
+    },
+    {
+      "id": "restore",
+      "lane": "recovery",
+      "col": 4,
+      "type": "backend",
+      "label": "Restore latest",
+      "sublabel": "model / optim / counters",
+      "width": 140
+    },
+    {
+      "id": "abort",
+      "lane": "recovery",
+      "col": 5,
+      "type": "security",
+      "label": "Abort",
+      "sublabel": "absent or reused checkpoint",
+      "width": 140
     }
   ],
   "edges": [
     {
-      "id": "step1",
+      "id": "phase-batch",
       "from": "phase",
-      "to": "batch"
+      "to": "batch",
+      "label": "below cap",
+      "role": "main",
+      "variant": "default"
     },
     {
-      "id": "step2",
+      "id": "batch-loss",
       "from": "batch",
-      "to": "forward"
+      "to": "loss",
+      "label": "",
+      "role": "main",
+      "variant": "default"
     },
     {
-      "id": "step3",
-      "from": "forward",
-      "to": "ce"
+      "id": "loss-finite",
+      "from": "loss",
+      "to": "finite",
+      "label": "",
+      "role": "main",
+      "variant": "default"
     },
     {
-      "id": "step4",
-      "from": "ce",
-      "to": "backward"
+      "id": "finite-backward",
+      "from": "finite",
+      "to": "backward",
+      "label": "yes",
+      "role": "main",
+      "variant": "default"
     },
     {
-      "id": "step5",
+      "id": "backward-adam",
       "from": "backward",
-      "to": "adam"
+      "to": "adam",
+      "label": "window full",
+      "role": "main",
+      "variant": "default"
     },
     {
-      "id": "step6",
+      "id": "adam-watch",
       "from": "adam",
-      "to": "watch"
+      "to": "watch",
+      "label": "",
+      "role": "main",
+      "variant": "default"
     },
     {
-      "id": "step7",
+      "id": "phase-done",
+      "from": "phase",
+      "to": "done",
+      "label": "cap reached",
+      "role": "branch",
+      "variant": "default"
+    },
+    {
+      "id": "backward-batch",
+      "from": "backward",
+      "to": "batch",
+      "label": "partial window",
+      "role": "return",
+      "variant": "dashed"
+    },
+    {
+      "id": "watch-phase",
       "from": "watch",
-      "to": "save"
+      "to": "phase",
+      "label": "below 500",
+      "role": "return",
+      "variant": "dashed"
+    },
+    {
+      "id": "finite-clear",
+      "from": "finite",
+      "to": "clear",
+      "label": "no",
+      "role": "error",
+      "variant": "security"
+    },
+    {
+      "id": "clear-batch",
+      "from": "clear",
+      "to": "batch",
+      "label": "bad <5",
+      "role": "return",
+      "variant": "dashed"
+    },
+    {
+      "id": "clear-restore",
+      "from": "clear",
+      "to": "restore",
+      "label": "bad \u22655",
+      "role": "error",
+      "variant": "security"
+    },
+    {
+      "id": "watch-restore",
+      "from": "watch",
+      "to": "restore",
+      "label": "500 consecutive",
+      "role": "error",
+      "variant": "security"
+    },
+    {
+      "id": "restore-phase",
+      "from": "restore",
+      "to": "phase",
+      "label": "restored",
+      "role": "return",
+      "variant": "dashed"
+    },
+    {
+      "id": "restore-abort",
+      "from": "restore",
+      "to": "abort",
+      "label": "no fresh checkpoint",
+      "role": "error",
+      "variant": "security"
     }
   ],
   "mainPath": [
     "phase",
     "batch",
-    "forward",
-    "ce",
+    "loss",
+    "finite",
     "backward",
     "adam",
-    "watch",
-    "save"
+    "watch"
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "Constant tokens per update",
+      "title": "Configured update clock",
       "items": [
-        "A: 4096 \u00d7 8 \u00d7 4; B: 16384 \u00d7 1 \u00d7 8 = 131,072.",
-        "Switch at update 53,407; stop at 61,037 updates."
-      ]
-    },
-    {
-      "dot": "emerald",
-      "title": "Learning-rate schedule",
-      "items": [
-        "2000-update warmup, then one cosine schedule.",
-        "500-update sine re-warm starts at the context switch."
+        "131,072 positions/update; switch 53,407; cap 61,037.",
+        "Epoch / phase boundary drops partial accumulation."
       ]
     },
     {
       "dot": "rose",
-      "title": "Recovery has limits",
+      "title": "Guard / persistence limits",
       "items": [
-        "Nonfinite loss clears accumulation; threshold 5 triggers rollback.",
-        "Checkpoint files are direct writes; no RNG or sampler cursor."
+        "Watchdog resets on share \u22640.5; requires 500 consecutive updates.",
+        "Bad-loss counter resets on optimizer success, not every finite loss.",
+        "Direct writes; no RNG or data cursor; saving precedes watchdog."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Pinned source",
+      "items": [
+        "Revision 3dadb375e1e0; configs/pretrain_a100_341m.yaml",
+        "training/pretrain.py:train; full hashes in quality-review.md."
       ]
     }
   ]
