@@ -3,10 +3,9 @@
 The authoritative technical doc for HiLS-Attention-Lite: what the operator
 is, why each piece is shaped the way it is, what is inherited from upstream
 HiLS and what is a deliberate Lite decision, and how the whole thing is
-verified. Companion documents: [`llm-research/DESIGN-hils-attention-lite.md`](../../llm-research/DESIGN-hils-attention-lite.md)
-(justification) and [`llm-research/EXECUTION-PLAN-hils-attention-lite.md`](../../llm-research/EXECUTION-PLAN-hils-attention-lite.md)
-(the mechanical contract this repo implements). Component deep-dives live in
-[docs/](docs/README.md); this file is the spine.
+verified. Design notes and the execution contract live in-repo under
+[docs/](docs/README.md) (concepts, guides, and references). Component deep-dives
+live there; this file is the spine.
 
 ## 0. The one-paragraph summary
 
@@ -440,10 +439,8 @@ symptom-first; when a config knob is unclear:
 
 - HiLS: learned sparse chunk attention — arXiv:2607.02980 (Tencent, Jul 2026);
   released checkpoint `tencent/HiLS-Attention-7B`
-- [`llm-research/DESIGN-hils-attention-lite.md`](../../llm-research/DESIGN-hils-attention-lite.md)
   — architecture + rationale (§2 operator, §3 config, §4 pipeline, §6
   trade-offs, §12 the Lite-decision ledger)
-- [`llm-research/EXECUTION-PLAN-hils-attention-lite.md`](../../llm-research/EXECUTION-PLAN-hils-attention-lite.md)
   — the mechanical build contract; §8 the final verification matrix
 - `LLM/LLaMA-3-Lite/` — the 515M full-attention GQA baseline (matched
   harness; budget delta disclosed in every comparison)
