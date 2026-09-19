@@ -13,10 +13,8 @@ trained) sparse-attention model.
 > harness (`inference/evaluate.py`), the three headline eval scripts, and
 > the docs (this README, [`HILS.md`](HILS.md), [`docs/`](docs/README.md)).
 > Remaining: the A100 pod work — pretrain (~40–48 h) and the headline eval
-> runs (B1–B4). Design spec:
-> [`llm-research/DESIGN-hils-attention-lite.md`](../../llm-research/DESIGN-hils-attention-lite.md)
-> · build contract:
-> [`llm-research/EXECUTION-PLAN-hils-attention-lite.md`](../../llm-research/EXECUTION-PLAN-hils-attention-lite.md)
+> runs (B1–B4). Deep-dive: [`HILS.md`](HILS.md) · concepts:
+> [`docs/concepts/`](docs/concepts/) · runbook: [`docs/guides/a100-runbook.md`](docs/guides/a100-runbook.md).
 
 ## Headline numbers — targets until the A100 runs say otherwise
 
@@ -92,7 +90,8 @@ gate-checked by `scripts/check_docs.py`, and the HTML portal builds via
 | `test_loss.py` / `test_training.py` | chunked-CE ≡ eager CE; resume, guards, phase switch |
 | `test_doc_refs.py` | every doc anchor resolves; every public symbol cited |
 
-Design lineage: `llm-research/DESIGN-hils-attention-lite.md` (§12 lists the
-documented Lite decisions vs upstream); house conventions from
-DiffusionGemma-Lite; baseline `LLM/LLaMA-3-Lite/` (515M GQA — budget delta
-disclosed in every comparison).
+Design lineage: the workspace design doc `DESIGN-hils-attention-lite.md`
+(§12 lists the documented Lite decisions vs upstream); house conventions from
+DiffusionGemma-Lite; baseline
+[LLaMA-3-Lite](https://github.com/atandra2000/LLaMA-3-Lite) (515M GQA —
+budget delta disclosed in every comparison).
