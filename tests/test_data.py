@@ -14,7 +14,17 @@ import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # …/LLM/ → shared_data
+# Also allow a vendored copy at data/shared_data (CI / standalone checkouts).
+_vendored = Path(__file__).resolve().parents[1] / "data"
+if _vendored.is_dir() and str(_vendored) not in sys.path:
+    sys.path.insert(0, str(_vendored))
 
+# Workspace sibling package — not shipped in this GitHub repo. Skip the module
+# in CI / standalone clones rather than failing collection.
+pytest.importorskip(
+    "shared_data",
+    reason="shared_data not available (vendor under data/ or place as sibling of repo)",
+)
 from shared_data.dataset import ShardDataset
 from shared_data.loader import PackedDataset
 from shared_data.manifest import Manifest
