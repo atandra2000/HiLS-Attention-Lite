@@ -27,6 +27,8 @@ corrections to the unfinished draft. [Verification receipts](hils_receipts.json)
 
 ## Guides
 
+- [Learning paths](guides/learning-paths.md) — three reading paths (beginner /
+  intermediate / expert), each step a doc plus what you will know after
 - [Master guide](guides/master-guide.md) — comprehensive overview of architecture,
   data pipeline, two-phase pretraining, and systems optimizations
 - [Quickstart](guides/quickstart.md) — data → train → sample → evaluate,
@@ -35,6 +37,7 @@ corrections to the unfinished draft. [Verification receipts](hils_receipts.json)
   pretrain (resume semantics, what to watch) → the headline evals
 - [Debugging playbook](guides/debugging-playbook.md) — symptom-first recipes
   for the known failure modes (router collapse, NaN, phase-switch spikes)
+- [Glossary](guides/glossary.md) — notation, acronyms, config keys
 
 ## References
 
@@ -42,6 +45,16 @@ corrections to the unfinished draft. [Verification receipts](hils_receipts.json)
 - [Eval-scripts reference](references/eval-scripts.md) — every gate script:
   flags, gates, CPU vs A100 forms, PASS/DISCLOSED semantics
 - [API reference](references/api.md) — the full public surface, symbol-anchored
+
+## Applied pipeline
+
+- [Training pipeline](training.md) — the two-phase loop as it exists in code:
+  schedule, guardrails, loss path, memory stack, checkpointing
+
+## Audit
+
+- [AUDIT.md](AUDIT.md) — dated snapshot: verification runs, findings,
+  from-scratch explanation, modification plan
 
 ## Tooling
 
