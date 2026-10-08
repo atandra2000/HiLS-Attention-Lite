@@ -131,10 +131,14 @@ def test_checkpoint_roundtrip(tmp_path):
     cfg = load_config(path)
     man = CheckpointManager(cfg["training"]["save_dir"])
     assert man.latest_step() == 2  # save_interval=1 → steps 1 and 2 saved
-    fresh = HiLSAttentionLM(HiLSConfig(**cfg["model"]))
-    man.load(fresh, 2, device="cpu")
+    # Compare on one device. train() left state1.model on CUDA while the
+    # fresh copy defaulted to CPU, and the batch was never moved either, so
+    # the forward died in F.embedding with two devices.
+    dev = next(state1.model.parameters()).device
+    fresh = HiLSAttentionLM(HiLSConfig(**cfg["model"])).to(dev)
+    man.load(fresh, 2, device=str(dev))
     with torch.no_grad():
-        x = batches[0]["input"]
+        x = batches[0]["input"].to(dev)
         assert torch.equal(state1.model(x), fresh(x))
 
     state2 = train(path, batches=batches, max_steps=3)

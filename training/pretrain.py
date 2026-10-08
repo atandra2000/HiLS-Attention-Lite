@@ -32,6 +32,21 @@ from models.transformer import HiLSAttentionLM, HiLSConfig
 from utils.checkpoint import CheckpointManager
 from utils.logging import TrainingLogger
 from utils.memory import assert_fits_in_available_gpu, estimate_model_memory_gb
+# --- bakeoff exposure accounting (tools/bakeoff) ---
+import sys as _sys
+from pathlib import Path as _Path
+_BAKEOFF = _Path(__file__).resolve().parents[2] / "tools" / "bakeoff"
+if _BAKEOFF.is_dir() and str(_BAKEOFF) not in _sys.path:
+    _sys.path.insert(0, str(_BAKEOFF))
+try:
+    from exposure_hook import load_exposure as _load_exposure
+    from exposure_hook import bind as _bind_exp, tick as _tick_exp
+except Exception:
+    _load_exposure = None
+    _bind_exp = None
+    def _tick_exp(*a, **k):
+        pass
+# --- end bakeoff import ---
 
 logger = logging.getLogger(__name__)
 
@@ -144,6 +159,10 @@ def train(cfg_path: str, *, batches=None, max_steps: int | None = None,
     optimizer = build_optimizer(model, t)
     ckpt = CheckpointManager(t["save_dir"])
     state = TrainState(step=0, tokens_seen=0, model=model, optimizer=optimizer)
+    # bakeoff exposure. The loop rebinds these from phase_at each step; take
+    # the Phase A shape up front, which is the whole bakeoff run. Bound after
+    # the checkpoint load so a resumed run continues the token counter.
+    seq_len, micro_bs, accum = phase_at(0, cfg)
 
     latest = ckpt.latest_step()
     if latest is not None:
@@ -151,6 +170,15 @@ def train(cfg_path: str, *, batches=None, max_steps: int | None = None,
         state.step = int(meta.get("step", latest))
         state.tokens_seen = int(meta.get("tokens_seen", 0))
         print(f"[train] resumed at step {state.step} ({state.tokens_seen:,} tokens seen)")
+
+    if _load_exposure is not None:
+        _bind_exp(_load_exposure(__file__,
+            tokens_per_step=seq_len * micro_bs * accum,
+            micro_batch=micro_bs, seq_len=seq_len, grad_accum=accum,
+            tokenizer="gpt2",
+            run_dir=str(cfg.get("training", {}).get("save_dir", "checkpoints")) + "/exposure",
+            start_opt_steps=state.step,
+            start_tokens_seen=state.tokens_seen))
 
     def _restore(step_target: int) -> None:
         nonlocal rolled_back_to
@@ -217,6 +245,7 @@ def train(cfg_path: str, *, batches=None, max_steps: int | None = None,
             micro = 0
             state.step += 1
             state.tokens_seen += seq_len * micro_bs * accum
+            _tick_exp()   # bakeoff exposure: one complete optimizer step
             state.losses.append(loss)
             nan_streak = 0
             tlog.log(state.step, loss, lr)
