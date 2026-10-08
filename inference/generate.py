@@ -21,6 +21,7 @@ import torch.nn.functional as F
 from torch import Tensor
 
 from models.attention import apply_rope, hils_attention_core
+from models.attention import _SDPA_HAS_GQA, _sdpa_expand_gqa
 from models.landmarks import pooled_query
 from models.router import fusion_weights, retrieval_scores, select_chunks
 from models.transformer import HiLSAttentionLM
@@ -116,7 +117,8 @@ def step_decode(model: HiLSAttentionLM, cache: HiLSCache, tokens: Tensor,
         for s in range(n_sel):  # one SDPA call per selected slot — the per-chunk
             # softmax is the operator; identical factorization as training
             o = F.scaled_dot_product_attention(
-                q, K_sel[:, s], V_sel[:, s], enable_gqa=True)  # (B, H, C, D)
+                q, K_sel[:, s], V_sel[:, s], enable_gqa=True) if _SDPA_HAS_GQA \
+                else _sdpa_expand_gqa(q, K_sel[:, s], V_sel[:, s])  # (B, H, C, D)
             out = out + g[..., s].unsqueeze(-1) * o
         h = h + attn.out_proj(out.transpose(1, 2).reshape(B, T, H * D))
         gate, up = block.w13(block.ffn_norm(h)).chunk(2, dim=-1)

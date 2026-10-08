@@ -26,6 +26,27 @@ from models.landmarks import LandmarkProjector, pooled_query
 from models.router import balance_loss, fusion_weights, retrieval_scores, select_chunks
 
 
+def _sdpa_supports_gqa() -> bool:
+    """``enable_gqa`` landed in torch 2.5. On 2.4 the kwarg raises TypeError."""
+    import inspect
+    try:
+        return "enable_gqa" in inspect.signature(F.scaled_dot_product_attention).parameters
+    except (TypeError, ValueError):
+        return False
+
+
+_SDPA_HAS_GQA = _sdpa_supports_gqa()
+
+
+def _sdpa_expand_gqa(q, k, v):
+    """GQA attention on torch without ``enable_gqa``: tile the kv heads to match."""
+    n_rep = q.size(1) // k.size(1)
+    if n_rep > 1:
+        k = k.repeat_interleave(n_rep, dim=1)
+        v = v.repeat_interleave(n_rep, dim=1)
+    return F.scaled_dot_product_attention(q, k, v)
+
+
 def precompute_freqs_cis(head_dim: int, max_seq_len: int, theta: float,
                          dtype: torch.dtype = torch.float32) -> Tensor:
     """Llama-style complex rotation table: (max_seq_len, head_dim//2)."""
@@ -76,6 +97,10 @@ def hils_attention_core(q: Tensor, k: Tensor, v: Tensor, selected: Tensor,
             K_sel[:, :, s].reshape(B * N, KV, C, D),
             V_sel[:, :, s].reshape(B * N, KV, C, D),
             enable_gqa=True,
+        ) if _SDPA_HAS_GQA else _sdpa_expand_gqa(
+            q_flat,
+            K_sel[:, :, s].reshape(B * N, KV, C, D),
+            V_sel[:, :, s].reshape(B * N, KV, C, D),
         )  # (B·N, H, C, D)
         o = o.view(B, N, H, C, D).permute(0, 2, 1, 3, 4)  # (B, H, N, C, D)
         out = out + g[..., s].unsqueeze(-1).unsqueeze(-1) * o
