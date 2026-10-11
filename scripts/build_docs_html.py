@@ -5,9 +5,13 @@ Converts project markdown files into a responsive, beautifully-styled HTML docum
 with full LaTeX math (KaTeX) and syntax highlighting support.
 Output directory: docs_html/ (ignored by git).
 
-Design system: the "dark bench notebook" — espresso-graphite paper, warm-bone
-ink, terracotta + olive marks, one mono voice. Shares its lineage with the
-sibling LLaMA/DeepSeek/Mamba-3 Lite portals. See `assets/style.css`.
+Design system: the "printed reader" — cool white paper, blue-black ink, one
+ink-blue accent, Literata for prose and IBM Plex Mono for code and measured
+values. See `assets/style.css`.
+
+The portal is a book. `DOC_FILES` below is the single source of truth for its
+chapter list and reading order; the sidebar, the index page and the
+previous/next links are all derived from it.
 """
 import os
 import re
@@ -23,35 +27,56 @@ OUTPUT_DIR = WORKSPACE_DIR / "docs_html"
 
 DOC_FILES = [
     # (relative_path_from_root, category, display_title)
-    ("README.md", "Core", "Project Overview (README)"),
-    ("AGENTS.md", "Core", "AGENTS & System Architecture"),
-    ("SKILLS.md", "Core", "Skills Reference"),
-    ("HILS.md", "Core", "HILS — the authoritative technical doc"),
-    ("docs/README.md", "Core", "Documentation Index"),
+    ("README.md", "Core", "Project Overview (README)",
+     "The project in one page: a ~341M-param learned-sparse-attention LM — landmark-routed chunk attention trained end-to-end by the LM loss."),
+    ("AGENTS.md", "Core", "AGENTS & System Architecture",
+     "Hard rules (pure PyTorch, learned routing, causal selection, sparse ≡ eager), numerical-stability rules, known caveats."),
+    ("SKILLS.md", "Core", "Skills Reference",
+     "Day-to-day workflows: test suite, chunked-CE probe, sampler smoke, eval CLI, docs gates."),
+    ("HILS.md", "Core", "HILS — the authoritative technical doc",
+     "Landmark router math, causal top-k selection, hierarchical score fusion, aux load balancing, two-phase long-context recipe, recipe deltas vs upstream."),
+    ("docs/README.md", "Core", "Documentation Index",
+     "Map of the concepts, guides, and symbol-anchored references in this portal."),
 
     # Concepts
-    ("docs/concepts/hils-routing.md", "Concepts", "HiLS Routing — landmarks, causal top-k, native trainability"),
-    ("docs/concepts/hierarchical-attention.md", "Concepts", "Hierarchical Attention — per-chunk softmax and score fusion"),
-    ("docs/concepts/long-context-phases.md", "Concepts", "Long-Context Phases — 7B @ 4096 then 1B @ 16K"),
+    ("docs/concepts/hils-routing.md", "Concepts", "HiLS Routing — landmarks, causal top-k, native trainability",
+     "Landmark scoring, chunk-query pooling, causal top-k selection, and the fusion path that makes routing natively trainable."),
+    ("docs/concepts/hierarchical-attention.md", "Concepts", "Hierarchical Attention — per-chunk softmax and score fusion",
+     "Per-chunk independent softmax over k selected chunks, fused by retrieval scores — the operator that differs from full attention even at k=N."),
+    ("docs/concepts/long-context-phases.md", "Concepts", "Long-Context Phases — 7B @ 4096 then 1B @ 16K",
+     "7B tokens @ seq 4096 then 1B @ seq 16K in one schedule, with a 500-step re-warm at the switch and 4× extrapolation eval."),
 
     # Guides
-    ("docs/guides/master-guide.md", "Guides", "Visual Master Guide — source notes and interactive atlas"),
-    ("docs/guides/quickstart.md", "Guides", "Quickstart — data, train, sample, evaluate"),
-    ("docs/guides/a100-runbook.md", "Guides", "A100 Pod Runbook — boundary checks, pretrain, headline evals"),
-    ("docs/guides/debugging-playbook.md", "Guides", "Debugging Playbook — symptom-first recipes"),
+    ("docs/guides/master-guide.md", "Guides", "Visual Master Guide — source notes and interactive atlas",
+     "The visual atlas: source notes and the interactive figures in one walk."),
+    ("docs/guides/quickstart.md", "Guides", "Quickstart — data, train, sample, evaluate",
+     "Data → train → sample → evaluate, end to end, with the shard-path contract spelled out."),
+    ("docs/guides/a100-runbook.md", "Guides", "A100 Pod Runbook — boundary checks, pretrain, headline evals",
+     "Boundary checks, the pretrain launch, and the headline evals on one A100."),
+    ("docs/guides/debugging-playbook.md", "Guides", "Debugging Playbook — symptom-first recipes",
+     "NaN rollback, resume divergence, anchor failures, shape errors — symptom-first recipes."),
 
     # References
-    ("docs/references/config.md", "References", "Config Reference — the production YAML"),
-    ("docs/references/eval-scripts.md", "References", "Eval-Scripts Reference — gates, flags, PASS/DISCLOSED"),
-    ("docs/references/api.md", "References", "API Reference — public surface, symbol-anchored"),
+    ("docs/references/config.md", "References", "Config Reference — the production YAML",
+     "Every key of the production pretrain YAML and its TrainingConfig target."),
+    ("docs/references/eval-scripts.md", "References", "Eval-Scripts Reference — gates, flags, PASS/DISCLOSED",
+     "Gates, flags, and PASS/DISCLOSED reporting for the eval scripts."),
+    ("docs/references/api.md", "References", "API Reference — public surface, symbol-anchored",
+     "The public surface of the modules, symbol-anchored."),
 ]
 
 # Premium-polish assets: secondary mono font, boot overlay, and a shared
 # portal.js that holds the hero, pass-diagram, sidebar, copy/expand, and
 # TOC scrollspy logic. All pages reference the same shell.
+PUBLISHED_MD = {rel for rel, *_ in DOC_FILES}
+
+# Premium-polish assets: secondary mono font, boot overlay, and a shared
+# portal.js that holds the hero, pass-diagram, sidebar, copy/expand, and
+# TOC scrollspy logic. All pages reference the same shell.
 FONT_LINK = ('<link href="https://fonts.googleapis.com/css2?'
-             'family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400'
-             '&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400'
+             'family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;'
+             '0,7..72,600;0,7..72,700;1,7..72,400'
+             '&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400'
              '&display=swap" rel="stylesheet">')
 BOOT_OVERLAY_HTML = (
     '<div id="boot-overlay" aria-hidden="true">'
@@ -83,7 +108,7 @@ HEAD_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
-    <!-- Fonts — secondary mono voice for headings/numerics, JetBrains for body. -->
+    <!-- Fonts — Literata for prose, IBM Plex Mono for code and data. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     {font_link}
@@ -95,7 +120,7 @@ HEAD_TEMPLATE = """<!DOCTYPE html>
 """
 
 DOC_EXTRA_HEAD = """    <!-- Highlight.js for Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <!-- KaTeX for LaTeX Math -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -190,7 +215,13 @@ def fix_md_links(content: str, src_rel_path: str) -> str:
                     # Prefer src-relative; falls through to a relative href
                     # the build still ships (harmless if unresolved).
                     repo_rel = Path(src_rel_path).parent / path_part
-            # Emit a href relative to the current output file's directory.
+            repo_rel_posix = repo_rel.as_posix()
+            if repo_rel_posix not in PUBLISHED_MD:
+                # Not a chapter: point at the source file rather than at a
+                # page the build never generates.
+                if repo_base:
+                    return f"[{label}]({repo_base}/{repo_rel_posix})"
+                return f"[{label}]({url})"
             rel = os.path.relpath(WORKSPACE_DIR / repo_rel, src_dir).replace(os.sep, '/')
             target = rel[:-3] + ".html"
             if anchor:
@@ -546,26 +577,25 @@ def compute_rel_prefix(target_rel_path: str) -> str:
 
 
 def build_sidebar_html(current_rel_path: str, rel_prefix: str) -> str:
-    """Build the navigation sidebar HTML."""
-    sidebar_sections = {"Core": [], "Concepts": [], "Guides": [], "References": []}
+    """Build the navigation sidebar HTML matching sibling layout."""
+    sidebar_sections: dict[str, list[str]] = {}
 
-    for rel_path, category, display_title in DOC_FILES:
+    for rel_path, part, display_title, _blurb in DOC_FILES:
         target_html_rel = rel_path.replace(".md", ".html")
         href = rel_prefix + target_html_rel
         is_active = (rel_path == current_rel_path)
         active_cls = "active" if is_active else ""
-        sidebar_sections[category].append(
+        sidebar_sections.setdefault(part, []).append(
             f'<li class="nav-item"><a href="{href}" class="nav-link {active_cls}" title="{display_title}"><span class="nav-link-text">{display_title}</span></a></li>'
         )
 
     html_out = ['<div class="sidebar-search"><input type="text" id="navSearch" placeholder="Search docs..." onkeyup="filterNav()"></div>']
 
-    for cat_name, items in sidebar_sections.items():
-        if items:
-            html_out.append('<div class="nav-group">')
-            html_out.append(f'<div class="nav-group-title">{cat_name}</div>')
-            html_out.append(f'<ul class="nav-list">{"".join(items)}</ul>')
-            html_out.append('</div>')
+    for part, items in sidebar_sections.items():
+        html_out.append('<div class="nav-group">')
+        html_out.append(f'<div class="nav-group-title">{part}</div>')
+        html_out.append(f'<ul class="nav-list">{"".join(items)}</ul>')
+        html_out.append('</div>')
 
     return "\n".join(html_out)
 
@@ -654,9 +684,9 @@ def generate_html_page(rel_path: str, category: str, display_title: str):
                 <div class="doc-header">
                     <h1 class="doc-title">{display_title}</h1>
                     <div class="doc-meta">
-                        <span class="meta-item"><span class="meta-mark">&sect;</span> {rel_path}</span>
-                        <span class="meta-item"><span class="meta-mark">&para;</span> {word_count:,} words</span>
-                        <span class="meta-item"><span class="meta-mark">&tau;</span> ~{reading_time} min read</span>
+                        <span class="meta-item">{rel_path}</span>
+                        <span class="meta-item">{word_count:,} words</span>
+                        <span class="meta-item">~{reading_time} min read</span>
                     </div>
                 </div>
 
@@ -695,50 +725,32 @@ def generate_index_portal():
     """Generate interactive index.html home portal."""
     sidebar_html = build_sidebar_html("index.html", "./")
 
-    categories = {
-        ("CORE", "Core Documents"): [
-            ("README.html", "README", "Project Overview", "~341M-param learned-sparse-attention LM — landmark-routed chunk attention trained end-to-end by the LM loss."),
-            ("HILS.html", "HILS", "Authoritative Technical Doc", "Landmark router math, causal top-k selection, hierarchical score fusion, aux load balancing, two-phase long-context recipe, recipe deltas vs upstream."),
-            ("AGENTS.html", "AGENTS", "Agent Contract", "Hard rules (pure PyTorch, learned routing, causal selection, sparse ≡ eager), numerical-stability rules, known caveats."),
-            ("SKILLS.html", "SKILLS", "Skills Map", "Day-to-day workflows: test suite, chunked-CE probe, sampler smoke, eval CLI, docs gates."),
-            ("docs/README.html", "DOCS", "Documentation Index", "Map of the concepts, guides, and symbol-anchored references in this portal."),
-        ],
-        ("CONCEPTS", "Architecture & Concepts"): [
-            ("docs/concepts/hils-routing.html", "C1", "HiLS Routing", "Landmark scoring, chunk-query pooling, causal top-k selection, and the fusion path that makes routing natively trainable."),
-            ("docs/concepts/hierarchical-attention.html", "C2", "Hierarchical Attention", "Per-chunk independent softmax over k selected chunks, fused by retrieval scores — the operator that differs from full attention even at k=N."),
-            ("docs/concepts/long-context-phases.html", "C3", "Long-Context Phases", "7B tokens @ seq 4096 then 1B @ seq 16K in one schedule, with a 500-step re-warm at the switch and 4× extrapolation eval."),
-        ],
-        ("GUIDES", "Guides & Playbooks"): [
-            ("docs/guides/quickstart.html", "G0", "Quickstart", "Data → train → sample → evaluate, end to end, with the shard-path contract spelled out."),
-            ("docs/guides/debugging-playbook.html", "G1", "Debugging Playbook", "NaN rollback, resume divergence, anchor failures, shape errors — symptom-first recipes."),
-        ],
-        ("REFS", "API References"): [
-            ("docs/references/config.html", "R1", "Config Reference", "Every key of configs/pretrain_a100_380m.yaml and its TrainingConfig default."),
-            ("docs/references/api.html", "R2", "API Reference", "The public surface of models/, training/, data/, inference/, utils/ — symbol-anchored."),
-        ],
-    }
-
-    portal_cards_html = ""
-    for (cat_tag, cat_title), items in categories.items():
-        cards = ""
-        for href, tag, title, desc in items:
-            cards += f"""
-            <a href="{href}" class="portal-card">
-                <span class="card-tag">{tag}</span>
+    # The index is the book's table of contents. It is derived from DOC_FILES
+    # so the sidebar and the index cannot disagree about the chapter list.
+    parts: dict[str, list[str]] = {}
+    chapter_no = 0
+    for rel_path, part, display_title, blurb in DOC_FILES:
+        chapter_no += 1
+        parts.setdefault(part, []).append(f"""
+            <a href="{rel_path.replace('.md', '.html')}" class="portal-card">
+                <span class="card-tag">Ch {chapter_no}</span>
                 <div class="card-body">
-                    <h3 class="card-heading">{title}</h3>
-                    <p class="card-desc">{desc}</p>
+                    <h3 class="card-heading">{display_title}</h3>
+                    <p class="card-desc">{blurb}</p>
                 </div>
             </a>
-            """
+            """)
+
+    portal_cards_html = ""
+    for part, cards in parts.items():
+        n = len(cards)
         portal_cards_html += f"""
         <section class="portal-section">
             <header class="portal-section-head">
-                <span class="portal-section-mark">&sect; {cat_tag.lower()}</span>
-                <h2 class="portal-section-title">{cat_title}</h2>
-                <span class="portal-section-meta">{len(items)} entries</span>
+                <span class="portal-section-mark">{n} {'chapter' if n == 1 else 'chapters'}</span>
+                <h2 class="portal-section-title">{part}</h2>
             </header>
-            <div class="portal-grid">{cards}</div>
+            <div class="portal-grid">{''.join(cards)}</div>
         </section>
         """
 
@@ -872,14 +884,18 @@ def generate_assets():
 
 def main():
     print("Building HiLS-Attention-Lite HTML Documentation...")
+    # docs_html/ is a build artifact, so wipe it first. Otherwise a chapter
+    # dropped from DOC_FILES survives as a stale page and gets published.
+    if OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUTPUT_DIR / ".nojekyll").touch()
 
     generate_assets()
 
-    for rel_path, category, display_title in DOC_FILES:
+    for rel_path, part, display_title, _blurb in DOC_FILES:
         print(f"Generating: {rel_path} -> docs_html/{rel_path.replace('.md', '.html')}")
-        generate_html_page(rel_path, category, display_title)
+        generate_html_page(rel_path, part, display_title)
 
     generate_index_portal()
     print("\nDocumentation build complete!")
